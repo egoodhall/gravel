@@ -40,9 +40,11 @@ func (cmd *BuildCmd) Run() error {
 		return err
 	}
 
-	if err := build.Exec(ctx, bld); err != nil {
-		return err
+	if !cmd.DryRun {
+		if err := build.Exec(ctx, bld); err != nil {
+			return err
+		}
 	}
 
-	return cache.Store(bld, hashes)
+	return cache.Store(bld, hashes, cmd.DryRun)
 }
