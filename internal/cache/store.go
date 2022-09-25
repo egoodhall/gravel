@@ -3,19 +3,26 @@ package cache
 import (
 	"encoding/json"
 	"os"
+
+	"github.com/emm035/gravel/internal/build"
+	"github.com/emm035/gravel/pkg/resolve"
 )
 
-func Store(build Build, hashes Hashes, planOnly bool) error {
-	if err := os.MkdirAll(build.Paths.BinDir, 0777); err != nil {
+func Store(plan build.Plan, hashes resolve.Hashes, planOnly bool) error {
+	if err := os.MkdirAll(plan.Paths.BinDir, 0777); err != nil {
 		return err
 	}
 
-	if err := storeData(build.Paths.BuildFile, build); err != nil {
+	if err := os.WriteFile(plan.Paths.GitignoreFile, []byte{'*'}, 0666); err != nil {
+		return err
+	}
+
+	if err := storeData(plan.Paths.PlanFile, plan); err != nil {
 		return err
 	}
 
 	if !planOnly {
-		if err := storeData(build.Paths.HashesFile, hashes.New); err != nil {
+		if err := storeData(plan.Paths.HashesFile, hashes.New); err != nil {
 			return err
 		}
 	}

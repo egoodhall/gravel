@@ -25,7 +25,7 @@ func (cmd *BuildCmd) Run() error {
 		return err
 	}
 
-	graph, err := resolve.DependencyGraph(ctx, paths.RootDir, "./...")
+	graph, err := resolve.DependencyGraph(ctx, paths)
 	if err != nil {
 		return err
 	}
@@ -35,7 +35,7 @@ func (cmd *BuildCmd) Run() error {
 		return err
 	}
 
-	bld, err := cache.NewBuild(paths, graph, hashes)
+	bld, err := build.NewPlan(paths, graph, hashes)
 	if err != nil {
 		return err
 	}

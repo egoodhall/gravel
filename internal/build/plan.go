@@ -1,4 +1,4 @@
-package cache
+package build
 
 import (
 	"github.com/emm035/gravel/internal/gravel"
@@ -6,13 +6,13 @@ import (
 	"github.com/emm035/gravel/pkg/types"
 )
 
-type Build struct {
+type Plan struct {
 	Paths gravel.Paths  `json:"paths"`
 	Test  []resolve.Pkg `json:"test"`
 	Build []resolve.Pkg `json:"build"`
 }
 
-func NewBuild(paths gravel.Paths, graph types.Graph[resolve.Pkg], hashes Hashes) (Build, error) {
+func NewPlan(paths gravel.Paths, graph types.Graph[resolve.Pkg], hashes resolve.Hashes) (Plan, error) {
 	changedPkgPaths := hashes.Changed()
 	changed := graph.Nodes().Filter(func(pkg resolve.Pkg) bool {
 		return changedPkgPaths.Has(pkg.PkgPath)
@@ -25,7 +25,7 @@ func NewBuild(paths gravel.Paths, graph types.Graph[resolve.Pkg], hashes Hashes)
 		test.AddSet(dependents.Descendants(pkg))
 	}
 
-	return Build{
+	return Plan{
 		Paths: paths,
 		Test:  test.Slice(),
 		Build: test.Filter(func(pkg resolve.Pkg) bool {

@@ -10,45 +10,21 @@ import (
 	"github.com/emm035/gravel/pkg/types"
 )
 
-type File struct {
-	Hashes map[string]string `json:"hashes"`
-}
-
-type Hashes struct {
-	Old map[string]string
-	New map[string]string
-}
-
-func NewHashes(graph types.Graph[resolve.Pkg], paths gravel.Paths) (Hashes, error) {
+func NewHashes(graph types.Graph[resolve.Pkg], paths gravel.Paths) (resolve.Hashes, error) {
 	oldHashes, err := loadHashes(paths)
 	if err != nil {
-		return Hashes{}, err
+		return resolve.Hashes{}, err
 	}
 
 	newHashes, err := computeHashes(graph, paths)
 	if err != nil {
-		return Hashes{}, err
+		return resolve.Hashes{}, err
 	}
 
-	return Hashes{
+	return resolve.Hashes{
 		Old: oldHashes,
 		New: newHashes,
 	}, nil
-}
-
-func (h Hashes) Changed() types.Set[string] {
-	s := types.NewSet[string]()
-	for pkg, hash := range h.New {
-		if hash != h.Old[pkg] {
-			s.Add(pkg)
-		}
-	}
-	for pkg, hash := range h.Old {
-		if hash != h.New[pkg] {
-			s.Add(pkg)
-		}
-	}
-	return s
 }
 
 func loadHashes(paths gravel.Paths) (map[string]string, error) {

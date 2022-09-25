@@ -2,24 +2,23 @@ package resolve
 
 import (
 	"context"
-	"path/filepath"
 	"strings"
 
+	"github.com/emm035/gravel/internal/gravel"
 	"github.com/emm035/gravel/pkg/types"
 	"golang.org/x/tools/go/packages"
 )
 
-func DependencyGraph(ctx context.Context, root string, queries ...string) (types.Graph[Pkg], error) {
-	absRoot, err := filepath.Abs(root)
-	if err != nil {
-		return nil, err
-	}
-
+// DependencyGraph returns a dependency graph for the go packages
+// that exist under the specified root directory. This will omit any
+// package dependencies that aren't included in the root, such as
+// stdlib imports or imports from other modules.
+func DependencyGraph(ctx context.Context, paths gravel.Paths) (types.Graph[Pkg], error) {
 	pkgs, err := packages.Load(&packages.Config{
 		Context: ctx,
-		Dir:     absRoot,
+		Dir:     paths.RootDir,
 		Mode:    packages.NeedDeps | packages.NeedImports | packages.NeedName | packages.NeedModule,
-	}, queries...)
+	}, "./...")
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +41,8 @@ func DependencyGraph(ctx context.Context, root string, queries ...string) (types
 				return nil, err
 			}
 
-			if !strings.HasPrefix(depPkg.DirPath, absRoot) {
+			// Only include packages that exist within the root dir
+			if !strings.HasPrefix(depPkg.DirPath, paths.RootDir) {
 				continue
 			}
 

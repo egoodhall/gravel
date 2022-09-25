@@ -1,5 +1,7 @@
 package gravel
 
-const (
-	Version = "v0.0.1"
-)
+import _ "embed"
+
+//go:generate sh version.sh
+//go:embed version.txt
+var Version string

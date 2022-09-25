@@ -7,13 +7,12 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/emm035/gravel/internal/cache"
 	"github.com/emm035/gravel/internal/gravel"
 	"github.com/emm035/gravel/pkg/resolve"
 	"golang.org/x/sync/errgroup"
 )
 
-func Exec(ctx context.Context, build cache.Build) error {
+func Exec(ctx context.Context, build Plan) error {
 
 	if len(build.Test) > 0 {
 		if err := execTests(ctx, build.Test); err != nil {
