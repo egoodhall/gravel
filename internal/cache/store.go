@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func Store(build Build, hashes Hashes, dryRun bool) error {
+func Store(build Build, hashes Hashes, planOnly bool) error {
 	if err := os.MkdirAll(build.Paths.BinDir, 0777); err != nil {
 		return err
 	}
@@ -14,7 +14,7 @@ func Store(build Build, hashes Hashes, dryRun bool) error {
 		return err
 	}
 
-	if !dryRun {
+	if !planOnly {
 		if err := storeData(build.Paths.HashesFile, hashes.New); err != nil {
 			return err
 		}

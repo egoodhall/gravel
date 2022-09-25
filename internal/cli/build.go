@@ -12,8 +12,8 @@ import (
 )
 
 type BuildCmd struct {
-	Root   string `name:"root" default:"." required:""`
-	DryRun bool   `name:"dry-run" short:"d"`
+	Root     string `name:"root" default:"." required:""`
+	PlanOnly bool   `name:"plan" short:"p"`
 }
 
 func (cmd *BuildCmd) Run() error {
@@ -40,11 +40,11 @@ func (cmd *BuildCmd) Run() error {
 		return err
 	}
 
-	if !cmd.DryRun {
+	if !cmd.PlanOnly {
 		if err := build.Exec(ctx, bld); err != nil {
 			return err
 		}
 	}
 
-	return cache.Store(bld, hashes, cmd.DryRun)
+	return cache.Store(bld, hashes, cmd.PlanOnly)
 }
