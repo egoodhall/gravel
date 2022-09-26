@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/alecthomas/kong"
-	"github.com/emm035/gravel/internal/cli"
+	"github.com/emm035/gravel/cmd/gravel/internal/cli"
 )
 
 var GravelCli struct {

@@ -1,15 +1,18 @@
 package cli
 
 import (
+	_ "embed"
 	"fmt"
-
-	"github.com/emm035/gravel/internal/gravel"
 )
+
+//go:generate sh version.sh
+//go:embed version.txt
+var Version string
 
 type VersionCmd struct {
 }
 
 func (cmd *VersionCmd) Run() error {
-	fmt.Println(gravel.Version)
+	fmt.Println(Version)
 	return nil
 }
