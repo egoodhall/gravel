@@ -10,8 +10,8 @@ import (
 	"github.com/emm035/gravel/pkg/types"
 )
 
-func NewHashes(graph types.Graph[resolve.Pkg], paths gravel.Paths) (resolve.Hashes, error) {
-	oldHashes, err := loadHashes(paths)
+func NewHashes(graph types.Graph[resolve.Pkg], paths gravel.Paths, ignoreOld bool) (resolve.Hashes, error) {
+	oldHashes, err := loadHashes(paths, ignoreOld)
 	if err != nil {
 		return resolve.Hashes{}, err
 	}
@@ -27,7 +27,11 @@ func NewHashes(graph types.Graph[resolve.Pkg], paths gravel.Paths) (resolve.Hash
 	}, nil
 }
 
-func loadHashes(paths gravel.Paths) (map[string]string, error) {
+func loadHashes(paths gravel.Paths, fakeLoad bool) (map[string]string, error) {
+	if fakeLoad {
+		return make(map[string]string), nil
+	}
+
 	data, err := os.ReadFile(paths.HashesFile)
 	if os.IsNotExist(err) {
 		return nil, nil

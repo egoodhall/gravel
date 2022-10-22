@@ -8,7 +8,10 @@ import (
 )
 
 var description = strings.Trim(`
-Gravel monorepo build tool
+Gravel is a build tool for small go monorepos.
+
+It will build/test only packages that have been
+changed since the last run.
 `, " \n\t")
 
 var GravelCli struct {

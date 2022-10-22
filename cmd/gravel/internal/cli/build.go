@@ -12,8 +12,9 @@ import (
 )
 
 type BuildCmd struct {
-	Root     string `name:"root" default:"." required:"" help:"The root directory to build. All other paths are relative to the root"`
-	PlanOnly bool   `name:"plan-only" short:"p" help:"Generate a build/test plan, without actually performing it. This will write the plan to plan.json in the gravel directory"`
+	Root       string `name:"root" default:"." required:"" help:"The root directory to build. All other paths are relative to the root"`
+	ForceBuild bool   `name:"force" short:"f" help:"Force all packages to be built/tested, regardless of whether they have changed"`
+	PlanOnly   bool   `name:"plan-only" short:"p" help:"Generate a build/test plan (without running it), and write it to gravel/plan.json"`
 }
 
 func (cmd *BuildCmd) Run() error {
@@ -30,7 +31,7 @@ func (cmd *BuildCmd) Run() error {
 		return err
 	}
 
-	hashes, err := cache.NewHashes(graph, paths)
+	hashes, err := cache.NewHashes(graph, paths, cmd.ForceBuild)
 	if err != nil {
 		return err
 	}
