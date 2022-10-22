@@ -6,8 +6,8 @@ import (
 )
 
 var GravelCli struct {
-	Build   cli.BuildCmd   `name:"build" cmd:""`
-	Version cli.VersionCmd `name:"version" cmd:""`
+	Build   cli.BuildCmd   `name:"build" cmd:"" help:"Run a test/build cycle for any packages that have changed since the last run"`
+	Version cli.VersionCmd `name:"version" cmd:"" help:"Print out the version of the gravel binary and exit"`
 }
 
 func main() {

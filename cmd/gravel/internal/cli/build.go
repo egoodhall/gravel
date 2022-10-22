@@ -12,8 +12,8 @@ import (
 )
 
 type BuildCmd struct {
-	Root     string `name:"root" default:"." required:""`
-	PlanOnly bool   `name:"plan" short:"p"`
+	Root     string `name:"root" default:"." required:"" help:"The root directory to build. All other paths are relative to the root"`
+	PlanOnly bool   `name:"plan-only" short:"p" help:"Generate a build/test plan, without actually performing it. This will write the plan to plan.json in the gravel directory"`
 }
 
 func (cmd *BuildCmd) Run() error {
