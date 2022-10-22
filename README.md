@@ -5,14 +5,6 @@ changed since the last build, and only tests/builds their packages. Gravel uses 
 for managing dependencies, which makes it more feasible to use than something like Bazel for
 small projects.
 
-All built binaries are placed into `$root/gravel/bin`. For example, if run on this repository:
-
-```
-$ gravel build
-$ ls ./gravel/bin
-gravel
-```
-
 ### Installation
 
 ```
@@ -23,4 +15,14 @@ $ go install github.com/emm035/gravel@latest
 
 ```
 $ gravel build
+```
+
+### Output
+
+All built binaries are placed into `$root/gravel/bin`. For example, if run on this repository:
+
+```
+$ gravel build
+$ ls ./gravel/bin
+gravel
 ```
