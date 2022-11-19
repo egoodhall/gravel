@@ -6,9 +6,10 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/emm035/gravel/internal/gravel"
-	"github.com/emm035/gravel/pkg/resolve"
+	"github.com/emm035/gravel/internal/resolve"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -50,8 +51,29 @@ func execBuilds(parent context.Context, paths gravel.Paths, pkgs []resolve.Pkg) 
 }
 
 func execBuild(ctx context.Context, paths gravel.Paths, pkg resolve.Pkg) func() error {
-	cmd := exec.CommandContext(ctx, "go", "build", "-o", filepath.Join(paths.BinDir, pkg.Binary), pkg.PkgPath)
+	var version string
+	if bc, err := resolve.BuildFile(pkg); err == nil {
+		version = bc.Version
+	}
+
+	commit, _ := resolve.GitCommit()
+
+	cmd := exec.CommandContext(ctx, "go", "build",
+		"-ldflags", buildLdFlags(version, commit),
+		"-o", filepath.Join(paths.BinDir, pkg.Binary),
+		pkg.PkgPath,
+	)
+
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
+
 	return cmd.Run
+}
+
+func buildLdFlags(version, commit string) string {
+	return strings.Join([]string{
+		"-s -w",
+		fmt.Sprintf("-X github.com/emm035/gravel/pkg/buildinfo.version=%s", version),
+		fmt.Sprintf("-X github.com/emm035/gravel/pkg/buildinfo.commit=%s", commit),
+	}, " ")
 }

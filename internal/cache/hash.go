@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/emm035/gravel/internal/gravel"
-	"github.com/emm035/gravel/pkg/resolve"
-	"github.com/emm035/gravel/pkg/types"
+	"github.com/emm035/gravel/internal/resolve"
+	"github.com/emm035/gravel/internal/types"
 )
 
 func NewHashes(graph types.Graph[resolve.Pkg], paths gravel.Paths, ignoreOld bool) (resolve.Hashes, error) {

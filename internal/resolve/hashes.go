@@ -1,6 +1,6 @@
 package resolve
 
-import "github.com/emm035/gravel/pkg/types"
+import "github.com/emm035/gravel/internal/types"
 
 type Hashes struct {
 	Old map[string]string

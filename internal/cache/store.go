@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/emm035/gravel/internal/build"
-	"github.com/emm035/gravel/pkg/resolve"
+	"github.com/emm035/gravel/internal/resolve"
 )
 
 func Store(plan build.Plan, hashes resolve.Hashes, planOnly bool) error {

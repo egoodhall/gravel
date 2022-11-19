@@ -8,7 +8,7 @@ import (
 	"github.com/emm035/gravel/internal/build"
 	"github.com/emm035/gravel/internal/cache"
 	"github.com/emm035/gravel/internal/gravel"
-	"github.com/emm035/gravel/pkg/resolve"
+	"github.com/emm035/gravel/internal/resolve"
 )
 
 type BuildCmd struct {

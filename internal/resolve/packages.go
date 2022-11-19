@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/emm035/gravel/internal/gravel"
-	"github.com/emm035/gravel/pkg/types"
+	"github.com/emm035/gravel/internal/types"
 	"golang.org/x/tools/go/packages"
 )
 

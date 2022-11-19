@@ -2,8 +2,8 @@ package build
 
 import (
 	"github.com/emm035/gravel/internal/gravel"
-	"github.com/emm035/gravel/pkg/resolve"
-	"github.com/emm035/gravel/pkg/types"
+	"github.com/emm035/gravel/internal/resolve"
+	"github.com/emm035/gravel/internal/types"
 )
 
 type Plan struct {
