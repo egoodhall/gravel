@@ -9,8 +9,14 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/emm035/gravel/internal/semver"
 	"golang.org/x/tools/go/packages"
 )
+
+type VersionedPkg struct {
+	Pkg
+	Version semver.Version `json:"version"`
+}
 
 type Pkg struct {
 	Binary  string `json:"binary"`

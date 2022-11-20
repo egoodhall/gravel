@@ -7,8 +7,14 @@ import (
 
 	"github.com/emm035/gravel/internal/gravel"
 	"github.com/emm035/gravel/internal/resolve"
+	"github.com/emm035/gravel/internal/semver"
 	"github.com/emm035/gravel/internal/types"
 )
+
+var emptyCache = resolve.CacheFile{
+	Packages: nil,
+	Versions: nil,
+}
 
 func NewHashes(graph types.Graph[resolve.Pkg], paths gravel.Paths, ignoreOld bool) (resolve.Hashes, error) {
 	oldHashes, err := loadHashes(paths, ignoreOld)
@@ -27,19 +33,19 @@ func NewHashes(graph types.Graph[resolve.Pkg], paths gravel.Paths, ignoreOld boo
 	}, nil
 }
 
-func loadHashes(paths gravel.Paths, fakeLoad bool) (map[string]string, error) {
+func loadHashes(paths gravel.Paths, fakeLoad bool) (*resolve.CacheFile, error) {
 	if fakeLoad {
-		return make(map[string]string), nil
+		return &emptyCache, nil
 	}
 
 	data, err := os.ReadFile(paths.HashesFile)
 	if os.IsNotExist(err) {
-		return nil, nil
+		return &emptyCache, nil
 	} else if err != nil {
 		return nil, err
 	}
 
-	cache := make(map[string]string)
+	cache := new(resolve.CacheFile)
 	if err := json.Unmarshal(data, &cache); err != nil {
 		return nil, err
 	}
@@ -51,14 +57,25 @@ var (
 	ErrPkgDirNotFound = errors.New("package directory not found")
 )
 
-func computeHashes(graph types.Graph[resolve.Pkg], paths gravel.Paths) (map[string]string, error) {
-	hashes := make(map[string]string)
+func computeHashes(graph types.Graph[resolve.Pkg], paths gravel.Paths) (*resolve.CacheFile, error) {
+	cacheFile := &resolve.CacheFile{
+		Packages: make(map[string]string),
+		Versions: make(map[string]semver.Version),
+	}
+
 	for pkg := range graph.Nodes() {
 		hash, err := pkg.Hash()
 		if err != nil {
 			return nil, err
 		}
-		hashes[pkg.PkgPath] = hash
+		cacheFile.Packages[pkg.PkgPath] = hash
+
+		bfc, err := resolve.BuildFile(pkg)
+		if err != nil {
+			continue
+		}
+
+		cacheFile.Versions[pkg.PkgPath] = bfc.Version
 	}
-	return hashes, nil
+	return cacheFile, nil
 }

@@ -1,21 +1,44 @@
 package resolve
 
-import "github.com/emm035/gravel/internal/types"
+import (
+	"github.com/emm035/gravel/internal/semver"
+	"github.com/emm035/gravel/internal/types"
+)
 
 type Hashes struct {
-	Old map[string]string
-	New map[string]string
+	Old *CacheFile
+	New *CacheFile
 }
 
-func (h Hashes) Changed() types.Set[string] {
+type CacheFile struct {
+	Packages map[string]string         `json:"packages"`
+	Versions map[string]semver.Version `json:"versions"`
+}
+
+func (h Hashes) ChangedPackages() types.Set[string] {
 	s := types.NewSet[string]()
-	for pkg, hash := range h.New {
-		if hash != h.Old[pkg] {
+	for pkg, hash := range h.New.Packages {
+		if hash != h.Old.Packages[pkg] {
 			s.Add(pkg)
 		}
 	}
-	for pkg, hash := range h.Old {
-		if hash != h.New[pkg] {
+	for pkg, hash := range h.Old.Packages {
+		if hash != h.New.Packages[pkg] {
+			s.Add(pkg)
+		}
+	}
+	return s
+}
+
+func (h Hashes) ChangedVersions() types.Set[string] {
+	s := types.NewSet[string]()
+	for pkg, hash := range h.New.Versions {
+		if hash != h.Old.Versions[pkg] {
+			s.Add(pkg)
+		}
+	}
+	for pkg, hash := range h.Old.Versions {
+		if hash != h.New.Versions[pkg] {
 			s.Add(pkg)
 		}
 	}

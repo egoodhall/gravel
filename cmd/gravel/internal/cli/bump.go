@@ -2,12 +2,14 @@ package cli
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 
 	"github.com/emm035/gravel/internal/gravel"
 	"github.com/emm035/gravel/internal/resolve"
 	"github.com/emm035/gravel/internal/semver"
+	"github.com/go-git/go-git/v5"
 )
 
 type BumpType byte
@@ -48,7 +50,27 @@ func (cmd *BumpCmd) Run() error {
 		if err := bfc.Save(); err != nil {
 			return err
 		}
+
+		if err := cmd.Tag(pkg, bfc.Version); err != nil {
+			return err
+		}
 	}
 
 	return nil
+}
+
+func (cmd *BumpCmd) Tag(pkg resolve.Pkg, version semver.Version) error {
+	repo, err := git.PlainOpen(cmd.Root)
+	if err != nil {
+		return err
+	}
+
+	ref, err := repo.Head()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s/%s", pkg.Binary, version)
+	_, err = repo.CreateTag(fmt.Sprintf("%s/%s", pkg.Binary, version), ref.Hash(), nil)
+	return err
 }
