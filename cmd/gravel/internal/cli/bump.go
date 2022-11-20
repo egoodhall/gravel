@@ -19,6 +19,7 @@ type BumpCmd struct {
 	Root    string         `name:"root" default:"."`
 	Segment semver.Segment `name:"segment" default:"patch"`
 	Extra   string         `name:"extra" default:""`
+	Tag     bool           `name:"tag" negatable:"" default:"true"`
 }
 
 func (cmd *BumpCmd) Run() error {
@@ -51,7 +52,7 @@ func (cmd *BumpCmd) Run() error {
 			return err
 		}
 
-		if err := cmd.Tag(pkg, bfc.Version); err != nil {
+		if err := cmd.tag(pkg, bfc.Version); err != nil {
 			return err
 		}
 	}
@@ -59,7 +60,7 @@ func (cmd *BumpCmd) Run() error {
 	return nil
 }
 
-func (cmd *BumpCmd) Tag(pkg resolve.Pkg, version semver.Version) error {
+func (cmd *BumpCmd) tag(pkg resolve.Pkg, version semver.Version) error {
 	repo, err := git.PlainOpen(cmd.Root)
 	if err != nil {
 		return err
@@ -68,6 +69,10 @@ func (cmd *BumpCmd) Tag(pkg resolve.Pkg, version semver.Version) error {
 	ref, err := repo.Head()
 	if err != nil {
 		return err
+	}
+
+	if !cmd.Tag {
+		return nil
 	}
 
 	fmt.Printf("%s/%s", pkg.Binary, version)
