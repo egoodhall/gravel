@@ -53,7 +53,7 @@ func execBuilds(parent context.Context, paths gravel.Paths, pkgs []resolve.Pkg) 
 func execBuild(ctx context.Context, paths gravel.Paths, pkg resolve.Pkg) func() error {
 	var version string
 	if bc, err := resolve.BuildFile(pkg); err == nil {
-		version = bc.Version
+		version = bc.Version.String()
 	}
 
 	commit, _ := resolve.GitCommit()

@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/emm035/gravel/internal/semver"
 	"gopkg.in/yaml.v3"
 )
 
@@ -15,11 +16,20 @@ var buildFileNames = []string{
 	".gravel.yaml",
 }
 
-type BuildConfig struct {
-	Version string `yaml:"version"`
+type BuildFileContents struct {
+	Path    string         `yaml:"-"`
+	Version semver.Version `yaml:"version"`
 }
 
-func BuildFile(pkg Pkg) (*BuildConfig, error) {
+func (bfc *BuildFileContents) Save() error {
+	data, err := yaml.Marshal(bfc)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(bfc.Path, data, 0o660)
+}
+
+func BuildFile(pkg Pkg) (*BuildFileContents, error) {
 	for _, fileName := range buildFileNames {
 		data, err := os.ReadFile(filepath.Join(pkg.DirPath, fileName))
 		if os.IsNotExist(err) {
@@ -29,10 +39,12 @@ func BuildFile(pkg Pkg) (*BuildConfig, error) {
 			return nil, err
 		}
 
-		bf := new(BuildConfig)
+		bf := new(BuildFileContents)
 		if err := yaml.Unmarshal(data, bf); err != nil {
 			return nil, err
 		}
+
+		bf.Path = filepath.Join(pkg.DirPath, fileName)
 
 		return bf, nil
 	}
