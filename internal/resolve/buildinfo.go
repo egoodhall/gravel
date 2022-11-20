@@ -14,6 +14,8 @@ var ErrBuildFileNotExist = fmt.Errorf("load build file: %w", os.ErrNotExist)
 var buildFileNames = []string{
 	".gravel.yml",
 	".gravel.yaml",
+	"gravel.yml",
+	"gravel.yaml",
 }
 
 type BuildFileContents struct {
@@ -33,7 +35,6 @@ func BuildFile(pkg Pkg) (*BuildFileContents, error) {
 	for _, fileName := range buildFileNames {
 		data, err := os.ReadFile(filepath.Join(pkg.DirPath, fileName))
 		if os.IsNotExist(err) {
-			fmt.Println(filepath.Join(pkg.DirPath, fileName))
 			continue
 		} else if err != nil {
 			return nil, err
