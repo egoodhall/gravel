@@ -7,12 +7,12 @@ import (
 	"github.com/emm035/gravel/pkg/buildinfo"
 )
 
-type VersionCmd struct {
+type versionCmd struct {
 	Version bool `name:"version" short:"v"`
 	Commit  bool `name:"commit" short:"c"`
 }
 
-func (cmd *VersionCmd) Run() error {
+func (cmd *versionCmd) Run() error {
 	if !cmd.Version && !cmd.Commit {
 		fmt.Println(buildinfo.GetVersion())
 		return nil
@@ -26,7 +26,7 @@ func (cmd *VersionCmd) Run() error {
 	return nil
 }
 
-func (cmd *VersionCmd) printValue(name, value string) {
+func (cmd *versionCmd) printValue(name, value string) {
 	if cmd.Version != cmd.Commit {
 		fmt.Println(value)
 	} else {

@@ -31,11 +31,11 @@ type BuildFlags struct {
 	Extra    string           `name:"version.extra" default:""`
 }
 
-type BuildCmd struct {
+type buildCmd struct {
 	BuildFlags
 }
 
-func (cmd *BuildCmd) Run() error {
+func (cmd *buildCmd) Run() error {
 	ctx, cancel := signal.NotifyContext(context.TODO(), os.Interrupt, os.Kill)
 	defer cancel()
 

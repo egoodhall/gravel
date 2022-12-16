@@ -1,11 +1,11 @@
 package cli
 
-type PlanCmd struct {
+type planCmd struct {
 	BuildFlags
 }
 
-func (cmd *PlanCmd) Run() error {
-	build := new(BuildCmd)
+func (cmd *planCmd) Run() error {
+	build := new(buildCmd)
 	build.BuildFlags = cmd.BuildFlags
 	build.printPlanAndExit = true
 	return build.Run()
