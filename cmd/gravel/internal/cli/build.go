@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"os/signal"
 
@@ -9,12 +10,29 @@ import (
 	"github.com/emm035/gravel/internal/cache"
 	"github.com/emm035/gravel/internal/gravel"
 	"github.com/emm035/gravel/internal/resolve"
+	"github.com/emm035/gravel/internal/semver"
 )
 
+type BuildFlags struct {
+	InstallFlags
+
+	// Internal flags used by other commands
+	// to configure behavior when invoking
+	// the build command.
+	printPlanAndExit bool
+	skipTests        bool
+	skipSaveCache    bool
+	skipSaveVersion  bool
+	buildAction      build.Action
+
+	// Flags for setting versioning behavior
+	Strategy *semver.Strategy `name:"version.strategy" xor:"type"`
+	Segment  *semver.Segment  `name:"version.segment" xor:"type"`
+	Extra    string           `name:"version.extra" default:""`
+}
+
 type BuildCmd struct {
-	Root       string `name:"root" default:"." required:"" help:"The root directory to build. All other paths are relative to the root"`
-	ForceBuild bool   `name:"force" short:"f" help:"Force all packages to be built/tested, regardless of whether they have changed"`
-	PlanOnly   bool   `name:"plan-only" short:"p" help:"Generate a build/test plan (without running it), and write it to gravel/plan.json"`
+	BuildFlags
 }
 
 func (cmd *BuildCmd) Run() error {
@@ -36,16 +54,68 @@ func (cmd *BuildCmd) Run() error {
 		return err
 	}
 
-	bld, err := build.NewPlan(paths, graph, hashes)
+	vbump, err := semver.NewBumper(cmd.Segment, cmd.Strategy, cmd.Extra)
 	if err != nil {
 		return err
 	}
 
-	if !cmd.PlanOnly {
-		if err := build.Exec(ctx, bld); err != nil {
+	plan, err := build.NewPlan(paths, vbump, graph, hashes)
+	if err != nil {
+		return err
+	}
+
+	if cmd.printPlanAndExit {
+		return printJson(plan)
+	}
+
+	if cmd.skipTests {
+		plan.Test = make([]resolve.Pkg, 0)
+	}
+
+	if err := build.Exec(semver.BumperContext(ctx, vbump), cmd.buildAction, plan); err != nil {
+		return err
+	}
+
+	if cmd.Extra == "" && !cmd.skipSaveVersion {
+		// Now that the build is finished, we can update any version
+		// files and regenerate the hashes for the built packages.
+		if err := updateVersionFiles(plan, hashes); err != nil {
 			return err
 		}
 	}
 
-	return cache.Store(bld, hashes, cmd.PlanOnly)
+	if cmd.skipSaveCache {
+		return nil
+	} else {
+		return cache.Store(paths, hashes)
+	}
+}
+
+func printJson(obj any) error {
+	enc := json.NewEncoder(os.Stdout)
+	enc.SetIndent("", "  ")
+	return enc.Encode(obj)
+}
+
+func updateVersionFiles(plan build.Plan, hashes resolve.Hashes) error {
+	for _, tgt := range plan.Build {
+		bf, err := resolve.BuildFile(tgt.Pkg)
+		if err != nil {
+			// No need to update a hash if we don't
+			// have a build file to write to
+			continue
+		}
+
+		// Because we're writing to the version file,
+		// we need to rehash the package that was built
+		bf.Version = tgt.Version
+		if err := bf.Save(); err != nil {
+			return err
+		}
+
+		if err := hashes.New.ReHash(tgt.Pkg, tgt.Version); err != nil {
+			return err
+		}
+	}
+	return nil
 }

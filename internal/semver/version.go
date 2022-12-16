@@ -1,6 +1,9 @@
 package semver
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 type Version struct {
 	Major uint64
@@ -9,21 +12,50 @@ type Version struct {
 	Extra string
 }
 
-// Bump to the next version, setting any "lower" segments
+func clone(v Version) Version {
+	return Version{
+		Major: v.Major,
+		Minor: v.Minor,
+		Patch: v.Patch,
+		Extra: v.Extra,
+	}
+}
+
+// bumpSegment to the next version, setting any "lower" segments
 // back to 0.
-func (v *Version) Bump(segment Segment, extra string) {
-	v.Extra = extra
+func bumpSegment(version Version, segment Segment, extra string) Version {
+	version.Extra = extra
 	switch segment {
 	case SegmentMajor:
-		v.Major++
-		v.Minor = 0
-		v.Patch = 0
+		version.Major++
+		version.Minor = 0
+		version.Patch = 0
 	case SegmentMinor:
-		v.Minor++
-		v.Patch = 0
+		version.Minor++
+		version.Patch = 0
 	case SegmentPatch:
-		v.Patch++
+		version.Patch++
 	}
+	return version
+}
+
+func bumpStrategy(version Version, strategy Strategy, extra string) Version {
+	version.Extra = extra
+	switch strategy {
+	case StrategyDate:
+		today := time.Now()
+		if uint64(today.Year())%100 != version.Major {
+			version.Major = uint64(today.Year()) % 100
+			version.Minor = uint64(today.Month())
+			version.Patch = 0
+		} else if uint64(today.Month()) != version.Minor {
+			version.Minor = uint64(today.Month())
+			version.Patch = 0
+		} else {
+			version.Patch++
+		}
+	}
+	return version
 }
 
 func (v *Version) UnmarshalText(p []byte) error {

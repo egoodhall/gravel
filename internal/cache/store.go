@@ -4,39 +4,33 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/emm035/gravel/internal/build"
+	"github.com/emm035/gravel/internal/gravel"
 	"github.com/emm035/gravel/internal/resolve"
 )
 
-func Store(plan build.Plan, hashes resolve.Hashes, planOnly bool) error {
-	if err := os.MkdirAll(plan.Paths.BinDir, 0777); err != nil {
+func Store(paths gravel.Paths, hashes resolve.Hashes) error {
+	if err := os.MkdirAll(paths.BinDir, 0777); err != nil {
 		return err
 	}
 
-	if err := os.WriteFile(plan.Paths.GitignoreFile, []byte{'*'}, 0666); err != nil {
+	if err := os.WriteFile(paths.GitignoreFile, []byte{'*'}, 0666); err != nil {
 		return err
 	}
 
-	if err := storeData(plan.Paths.PlanFile, plan); err != nil {
+	if err := storeData(paths.HashesFile, hashes.New); err != nil {
 		return err
-	}
-
-	if !planOnly {
-		if err := storeData(plan.Paths.HashesFile, hashes.New); err != nil {
-			return err
-		}
 	}
 
 	return nil
 }
 
 func storeData(path string, data any) error {
-	jdata, err := json.MarshalIndent(data, "", "  ")
+	jsn, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return err
 	}
 
-	if err := os.WriteFile(path, jdata, 0666); err != nil {
+	if err := os.WriteFile(path, jsn, 0666); err != nil {
 		return err
 	}
 

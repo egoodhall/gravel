@@ -17,7 +17,8 @@ changed since the last run.
 var GravelCli struct {
 	Build   cli.BuildCmd   `name:"build" cmd:"" help:"Run a test/build cycle for any packages that have changed since the last run"`
 	Version cli.VersionCmd `name:"version" cmd:"" help:"Print out the version of the gravel binary and exit"`
-	Bump    cli.BumpCmd    `name:"bump" cmd:"" help:"Bump the configured version of a package"`
+	Plan    cli.PlanCmd    `name:"plan" cmd:""`
+	Install cli.InstallCmd `name:"install" cmd:""`
 }
 
 func main() {

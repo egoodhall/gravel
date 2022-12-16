@@ -6,13 +6,23 @@ import (
 )
 
 type Hashes struct {
-	Old *CacheFile
-	New *CacheFile
+	Old *CacheFile `json:"old"`
+	New *CacheFile `json:"new"`
 }
 
 type CacheFile struct {
 	Packages map[string]string         `json:"packages"`
 	Versions map[string]semver.Version `json:"versions"`
+}
+
+func (cf CacheFile) ReHash(pkg Pkg, version semver.Version) error {
+	hash, err := pkg.Hash()
+	if err != nil {
+		return err
+	}
+	cf.Packages[pkg.PkgPath] = hash
+	cf.Versions[pkg.PkgPath] = version
+	return nil
 }
 
 func (h Hashes) ChangedPackages() types.Set[string] {

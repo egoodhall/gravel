@@ -19,11 +19,11 @@ const (
 
 func (seg *Segment) UnmarshalText(p []byte) error {
 	switch strings.ToLower(string(p)) {
-	case "major":
+	case SegmentMajor.String():
 		*seg = SegmentMajor
-	case "minor":
+	case SegmentMinor.String():
 		*seg = SegmentMinor
-	case "patch":
+	case SegmentPatch.String():
 		*seg = SegmentPatch
 	default:
 		return fmt.Errorf("%w: %s", ErrUnknownSegment, string(p))

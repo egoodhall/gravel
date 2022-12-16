@@ -19,7 +19,7 @@ var buildFileNames = []string{
 }
 
 type BuildFileContents struct {
-	Path    string         `yaml:"-"`
+	path    string         `yaml:"-"`
 	Version semver.Version `yaml:"version"`
 }
 
@@ -28,7 +28,15 @@ func (bfc *BuildFileContents) Save() error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(bfc.Path, data, 0o660)
+	return os.WriteFile(bfc.path, data, 0o660)
+}
+
+func Version(pkg Pkg) *semver.Version {
+	bf, err := BuildFile(pkg)
+	if err != nil {
+		return nil
+	}
+	return &bf.Version
 }
 
 func BuildFile(pkg Pkg) (*BuildFileContents, error) {
@@ -45,7 +53,7 @@ func BuildFile(pkg Pkg) (*BuildFileContents, error) {
 			return nil, err
 		}
 
-		bf.Path = filepath.Join(pkg.DirPath, fileName)
+		bf.path = filepath.Join(pkg.DirPath, fileName)
 
 		return bf, nil
 	}

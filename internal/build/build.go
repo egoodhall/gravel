@@ -13,7 +13,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func Exec(ctx context.Context, build Plan) error {
+func Exec(ctx context.Context, action Action, build Plan) error {
 
 	if len(build.Test) > 0 {
 		if err := execTests(ctx, build.Test); err != nil {
@@ -22,7 +22,7 @@ func Exec(ctx context.Context, build Plan) error {
 	}
 
 	if len(build.Build) > 0 {
-		if err := execBuilds(ctx, build.Paths, build.Build); err != nil {
+		if err := execBuilds(ctx, action, build.Paths, build.Build); err != nil {
 			return err
 		}
 	}
@@ -41,33 +41,40 @@ func execTests(ctx context.Context, pkgs []resolve.Pkg) error {
 	return cmd.Run()
 }
 
-func execBuilds(parent context.Context, paths gravel.Paths, pkgs []resolve.Pkg) error {
+func execBuilds(parent context.Context, action Action, paths gravel.Paths, tgts []Target) error {
 	eg, ctx := errgroup.WithContext(parent)
-	for _, pkg := range pkgs {
-		fmt.Println(pkg.PkgPath)
-		eg.Go(execBuild(ctx, paths, pkg))
+	for _, tgt := range tgts {
+		fmt.Println(tgt.PkgPath)
+		eg.Go(execBuild(ctx, action, paths, tgt))
 	}
 	return eg.Wait()
 }
 
-func execBuild(ctx context.Context, paths gravel.Paths, pkg resolve.Pkg) func() error {
-	var version string
-	if bc, err := resolve.BuildFile(pkg); err == nil {
-		version = bc.Version.String()
-	}
+//go:generate go run golang.org/x/tools/cmd/stringer -type=Action -linecomment
+type Action byte
 
+const (
+	Build   Action = iota // build
+	Install               // install
+)
+
+func execBuild(ctx context.Context, action Action, paths gravel.Paths, tgt Target) func() error {
 	commit, _ := resolve.GitCommit()
 
-	cmd := exec.CommandContext(ctx, "go", "build",
-		"-ldflags", buildLdFlags(version, commit),
-		"-o", filepath.Join(paths.BinDir, pkg.Binary),
-		pkg.PkgPath,
+	args := []string{action.String()}
+	if action != Install {
+		args = append(args, "-o", filepath.Join(paths.BinDir, tgt.Binary))
+	}
+	args = append(args,
+		"-ldflags", buildLdFlags(tgt.Version.String(), commit),
+		tgt.PkgPath,
 	)
 
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
+	c := exec.CommandContext(ctx, "go", args...)
+	c.Stderr = os.Stderr
+	c.Stdout = os.Stdout
 
-	return cmd.Run
+	return c.Run
 }
 
 func buildLdFlags(version, commit string) string {
