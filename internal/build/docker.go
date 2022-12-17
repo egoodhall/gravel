@@ -79,7 +79,7 @@ func execDockerBuilds(ctx context.Context, cfg Config) error {
 }
 
 func pushDockerImage(ctx context.Context, cfg Config, tgt Target) *exec.Cmd {
-	tag := buildDockerTags(cfg.Options.Docker, tgt, false)[0]
+	tag := buildDockerTag(cfg.Options.Docker, tgt)
 	cmd := exec.CommandContext(ctx, "docker", "push", tag)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -87,13 +87,9 @@ func pushDockerImage(ctx context.Context, cfg Config, tgt Target) *exec.Cmd {
 }
 
 func execDockerBuild(ctx context.Context, cfg Config, tgt Target) func() error {
-	args := []string{"build"}
-	for _, tag := range buildDockerTags(cfg.Options.Docker, tgt, true) {
-		args = append(args, "--tag", tag)
-	}
-	args = append(args, "-f", "-", cfg.Paths.RootDir)
+	tag := buildDockerTag(cfg.Options.Docker, tgt)
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.Command("docker", "build", "--tag", tag, "-f", "-", cfg.Paths.RootDir)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -120,7 +116,7 @@ func execDockerBuild(ctx context.Context, cfg Config, tgt Target) func() error {
 	return cmd.Wait
 }
 
-func buildDockerTags(opts DockerOptions, tgt Target, versioned bool) []string {
+func buildDockerTag(opts DockerOptions, tgt Target) string {
 	tag := tgt.Binary
 	if opts.Org != "" {
 		tag = opts.Org + "/" + tag
@@ -130,15 +126,7 @@ func buildDockerTags(opts DockerOptions, tgt Target, versioned bool) []string {
 		tag = opts.Registry + "/" + tag
 	}
 
-	if !versioned {
-		return []string{tag}
-	}
-
-	versions := tgt.Version.MungedTagStrings()
-	for i, v := range versions {
-		versions[i] = tag + ":" + v
-	}
-	return versions
+	return tag + ":" + tgt.Version.String()
 }
 
 func quote(strs []string) []string {

@@ -58,22 +58,6 @@ func (v *Version) UnmarshalText(p []byte) error {
 	return nil
 }
 
-func (v Version) MungedTagStrings() []string {
-	versions := []string{
-		fmt.Sprintf("%d", v.Major),
-		fmt.Sprintf("%d.%d", v.Major, v.Minor),
-		fmt.Sprintf("%d.%d.%d", v.Major, v.Minor, v.Patch),
-	}
-
-	if v.Extra != "" {
-		for i, ver := range versions {
-			versions[i] = fmt.Sprintf("%s-%s", ver, v.Extra)
-		}
-	}
-
-	return append(versions, "latest")
-}
-
 func (v Version) String() string {
 	if v.Extra == "" {
 		return fmt.Sprintf("v%d.%d.%d", v.Major, v.Minor, v.Patch)
