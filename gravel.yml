@@ -1,0 +1,6 @@
+---
+version:
+  strategy: date
+build: docker
+docker:
+  org: emm035

@@ -1,6 +1,8 @@
 package cli
 
-import "strings"
+import (
+	"strings"
+)
 
 var Description = strings.Trim(`
 Gravel is a build tool for small go monorepos.

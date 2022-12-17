@@ -19,13 +19,19 @@ type BuildFlags struct {
 	// Internal flags used by other commands
 	// to configure behavior when invoking
 	// the build command.
-	printPlanAndExit bool
-	skipTests        bool
-	skipSaveCache    bool
-	skipSaveVersion  bool
-	buildAction      build.Action
+	planOnly    bool
+	buildAction build.Action
 
-	// Flags for setting versioning behavior
+	Test      bool   `name:"tests" negatable:"" default:"true"`
+	BuildType string `name:"build" enum:"binary,docker" default:"binary"`
+
+	Cache bool `name:"cache" negatable:"" default:"true"`
+
+	// Docker configuration
+	DockerRegistry string `name:"docker.registry" default:""`
+	DockerOrg      string `name:"docker.org" default:""`
+
+	// Versioning configuration
 	Strategy *semver.Strategy `name:"version.strategy" xor:"type"`
 	Segment  *semver.Segment  `name:"version.segment" xor:"type"`
 	Extra    string           `name:"version.extra" default:""`
@@ -49,7 +55,7 @@ func (cmd *buildCmd) Run() error {
 		return err
 	}
 
-	hashes, err := cache.NewHashes(graph, paths, cmd.ForceBuild)
+	hashes, err := cache.NewHashes(graph, paths, !cmd.Cache)
 	if err != nil {
 		return err
 	}
@@ -64,30 +70,42 @@ func (cmd *buildCmd) Run() error {
 		return err
 	}
 
-	if cmd.printPlanAndExit {
+	if cmd.planOnly {
 		return printJson(plan)
 	}
 
-	if cmd.skipTests {
-		plan.Test = make([]resolve.Pkg, 0)
+	buildCfg := build.Config{
+		Action: cmd.buildAction,
+		Paths:  paths,
+		Plan:   plan,
+		Graph:  graph,
+		Options: build.Options{
+			Test:   build.TestOptions{Enabled: cmd.Test},
+			Binary: build.BinaryOptions{Enabled: cmd.BuildType == "binary"},
+		},
 	}
-
-	if err := build.Exec(semver.BumperContext(ctx, vbump), cmd.buildAction, plan); err != nil {
-		return err
-	}
-
-	if cmd.Extra == "" && !cmd.skipSaveVersion {
-		// Now that the build is finished, we can update any version
-		// files and regenerate the hashes for the built packages.
-		if err := updateVersionFiles(plan, hashes); err != nil {
-			return err
+	if cmd.BuildType == "docker" {
+		buildCfg.Options.Docker = build.DockerOptions{
+			Enabled:  true,
+			Org:      cmd.DockerOrg,
+			Registry: cmd.DockerRegistry,
 		}
 	}
 
-	if cmd.skipSaveCache {
-		return nil
-	} else {
+	if err := build.Exec(semver.BumperContext(ctx, vbump), buildCfg); err != nil {
+		return err
+	}
+
+	// Now that the build is finished, we can update any version
+	// files and regenerate the hashes for the built packages.
+	if err := updateVersionFiles(plan, hashes); err != nil {
+		return err
+	}
+
+	if cmd.Cache {
 		return cache.Store(paths, hashes)
+	} else {
+		return nil
 	}
 }
 

@@ -26,27 +26,19 @@ func DependencyGraph(ctx context.Context, paths gravel.Paths) (types.Graph[Pkg],
 	graph := types.NewGraph[Pkg]()
 
 	for _, pkg := range pkgs {
-		pkgPkg, err := NewPkg(pkg)
-		if err != nil {
-			return nil, err
-		}
-
 		if len(pkg.Imports) == 0 {
-			graph.PutNode(pkgPkg)
+			graph.PutNode(NewPkg(pkg))
 		}
 
 		for _, dep := range pkg.Imports {
-			depPkg, err := NewPkg(dep)
-			if err != nil {
-				return nil, err
-			}
+			dpkg := NewPkg(dep)
 
 			// Only include packages that exist within the root dir
-			if !strings.HasPrefix(depPkg.DirPath, paths.RootDir) {
+			if !strings.HasPrefix(dpkg.DirPath, paths.RootDir) {
 				continue
 			}
 
-			graph.PutEdge(pkgPkg, depPkg)
+			graph.PutEdge(NewPkg(pkg), dpkg)
 		}
 	}
 

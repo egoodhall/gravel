@@ -13,30 +13,34 @@ import (
 	"golang.org/x/tools/go/packages"
 )
 
+type Module struct {
+	ModPath string `json:"modPath"`
+	DirPath string `json:"dirPath"`
+}
+
 type VersionedPkg struct {
 	Pkg
 	Version semver.Version `json:"version"`
 }
 
 type Pkg struct {
+	Module  Module `json:"module"`
 	Binary  string `json:"binary"`
 	PkgName string `json:"pkgName"`
 	PkgPath string `json:"pkgPath"`
 	DirPath string `json:"dirPath"`
 }
 
-func NewPkg(frm *packages.Package) (Pkg, error) {
-	dirPath := ""
+func NewPkg(frm *packages.Package) (pkg Pkg) {
+	pkg.PkgName = frm.Name
+	pkg.PkgPath = frm.PkgPath
+	pkg.Binary = path.Base(pkg.PkgPath)
 	if frm.Module != nil {
-		dirPath = filepath.Join(frm.Module.Dir, strings.TrimPrefix(frm.PkgPath, frm.Module.Path))
+		pkg.DirPath = filepath.Join(frm.Module.Dir, strings.TrimPrefix(frm.PkgPath, frm.Module.Path))
+		pkg.Module.DirPath = frm.Module.Dir
+		pkg.Module.ModPath = frm.Module.Path
 	}
-
-	return Pkg{
-		Binary:  path.Base(frm.PkgPath),
-		PkgName: frm.Name,
-		PkgPath: frm.PkgPath,
-		DirPath: dirPath,
-	}, nil
+	return
 }
 
 func (pkg Pkg) String() string {

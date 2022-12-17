@@ -7,6 +7,6 @@ type planCmd struct {
 func (cmd *planCmd) Run() error {
 	build := new(buildCmd)
 	build.BuildFlags = cmd.BuildFlags
-	build.printPlanAndExit = true
+	build.planOnly = true
 	return build.Run()
 }
