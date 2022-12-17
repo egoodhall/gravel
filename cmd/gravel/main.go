@@ -8,7 +8,7 @@ import (
 func main() {
 	ktx := kong.Parse(new(cli.Cli),
 		kong.Description(cli.Description),
-		kong.Configuration(cli.YAML, "gravel.yml", "gravel.yaml"),
+		kong.Configuration(cli.YAML),
 	)
 	ktx.FatalIfErrorf(ktx.Run())
 }
