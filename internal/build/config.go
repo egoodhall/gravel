@@ -38,6 +38,7 @@ type BinaryOptions struct {
 
 type DockerOptions struct {
 	Enabled  bool
+	Push     bool
 	Registry string
 	Org      string
 }

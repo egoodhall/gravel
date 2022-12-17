@@ -63,7 +63,27 @@ func execDockerBuilds(ctx context.Context, cfg Config) error {
 	for _, tgt := range cfg.Plan.Build {
 		egrp.Go(execDockerBuild(gctx, cfg, tgt))
 	}
+	if err := egrp.Wait(); err != nil {
+		return err
+	}
+
+	if !cfg.Options.Docker.Push {
+		return nil
+	}
+
+	egrp, gctx = errgroup.WithContext(ctx)
+	for _, tgt := range cfg.Plan.Build {
+		egrp.Go(pushDockerImage(gctx, cfg, tgt).Run)
+	}
 	return egrp.Wait()
+}
+
+func pushDockerImage(ctx context.Context, cfg Config, tgt Target) *exec.Cmd {
+	tag := buildDockerTag(cfg.Options.Docker, tgt)
+	cmd := exec.CommandContext(ctx, "docker", "push", tag)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd
 }
 
 func execDockerBuild(ctx context.Context, cfg Config, tgt Target) func() error {

@@ -30,6 +30,7 @@ type BuildFlags struct {
 	// Docker configuration
 	DockerRegistry string `name:"docker.registry" default:"" help:"The docker registry to use when building image tags."`
 	DockerOrg      string `name:"docker.org" default:"" help:"The docker organization to use when building image tags."`
+	DockerPush     bool   `name:"docker.push" default:"false" help:"Push images to the remote docker registry."`
 
 	// Versioning configuration
 	Strategy *semver.Strategy `name:"version.strategy" xor:"type" help:"A version update strategy to use when a build occurs."`
