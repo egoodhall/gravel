@@ -96,10 +96,12 @@ func (cmd *buildCmd) Run() error {
 		return err
 	}
 
-	// Now that the build is finished, we can update any version
-	// files and regenerate the hashes for the built packages.
-	if err := updateVersionFiles(plan, hashes); err != nil {
-		return err
+	if os.Getenv("CI") != "" {
+		// Now that the build is finished, we can update any version
+		// files and regenerate the hashes for the built packages.
+		if err := updateVersionFiles(plan, hashes); err != nil {
+			return err
+		}
 	}
 
 	if cmd.Cache {
