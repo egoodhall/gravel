@@ -1,7 +1,6 @@
 package semver
 
 import (
-	"context"
 	"errors"
 )
 
@@ -37,20 +36,4 @@ func NewBumper(segment *Segment, strategy *Strategy, extra string) (Bumper, erro
 			return v
 		}), nil
 	}
-}
-
-type bumperContextKey struct{}
-
-func BumperContext(ctx context.Context, bumper Bumper) context.Context {
-	return context.WithValue(ctx, bumperContextKey{}, bumper)
-}
-
-func BumperFromContext(ctx context.Context) Bumper {
-	bump, ok := ctx.Value(bumperContextKey{}).(Bumper)
-	if !ok {
-		return bumperFunc(func(v Version) Version {
-			return v
-		})
-	}
-	return bump
 }

@@ -90,10 +90,11 @@ func (cmd *buildCmd) Run() error {
 			Enabled:  true,
 			Org:      cmd.DockerOrg,
 			Registry: cmd.DockerRegistry,
+			Push:     cmd.DockerPush,
 		}
 	}
 
-	if err := build.Exec(semver.BumperContext(ctx, vbump), buildCfg); err != nil {
+	if err := build.Exec(ctx, buildCfg); err != nil {
 		return err
 	}
 
