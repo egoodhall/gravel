@@ -22,19 +22,19 @@ type BuildFlags struct {
 	planOnly    bool
 	buildAction build.Action
 
-	Test      bool   `name:"tests" negatable:"" default:"true"`
-	BuildType string `name:"build" enum:"binary,docker" default:"binary"`
+	Test      bool   `name:"tests" negatable:"" default:"true" help:"Run tests for changed packages during the build process."`
+	BuildType string `name:"build" enum:"binary,docker" default:"binary" help:"The type of build to run. Must be one of: 'binary','docker'."`
 
-	Cache bool `name:"cache" negatable:"" default:"true"`
+	Cache bool `name:"cache" negatable:"" default:"true" help:"Use a build cache so only changed packages (and downstream dependents) are tested/built."`
 
 	// Docker configuration
-	DockerRegistry string `name:"docker.registry" default:""`
-	DockerOrg      string `name:"docker.org" default:""`
+	DockerRegistry string `name:"docker.registry" default:"" help:"The docker registry to use when building image tags."`
+	DockerOrg      string `name:"docker.org" default:"" help:"The docker organization to use when building image tags."`
 
 	// Versioning configuration
-	Strategy *semver.Strategy `name:"version.strategy" xor:"type"`
-	Segment  *semver.Segment  `name:"version.segment" xor:"type"`
-	Extra    string           `name:"version.extra" default:""`
+	Strategy *semver.Strategy `name:"version.strategy" xor:"type" help:"A version update strategy to use when a build occurs."`
+	Segment  *semver.Segment  `name:"version.segment" xor:"type" help:"A semantic version segment to update."`
+	Extra    string           `name:"version.extra" default:"" help:"An extra string that will be added to the updated version. For a value of 'test', the new version would be: 'v##.##.##-test'."`
 }
 
 type buildCmd struct {
@@ -96,7 +96,7 @@ func (cmd *buildCmd) Run() error {
 		return err
 	}
 
-	if os.Getenv("CI") != "" {
+	if os.Getenv("CI") != "" && cmd.buildAction == build.Build {
 		// Now that the build is finished, we can update any version
 		// files and regenerate the hashes for the built packages.
 		if err := updateVersionFiles(plan, hashes); err != nil {

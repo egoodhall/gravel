@@ -8,8 +8,8 @@ import (
 )
 
 type versionCmd struct {
-	Version bool `name:"version" short:"v"`
-	Commit  bool `name:"commit" short:"c"`
+	Version bool `name:"version" short:"v" help:"Include the current binary's version."`
+	Commit  bool `name:"commit" short:"c" help:"Include the git commit at the time the current binary was built."`
 }
 
 func (cmd *versionCmd) Run() error {

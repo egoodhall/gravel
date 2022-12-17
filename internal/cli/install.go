@@ -6,9 +6,9 @@ import (
 )
 
 type InstallFlags struct {
-	ConfigFile kong.ConfigFlag `name:"config" short:"c"`
-	Root       string          `name:"root" arg:""  default:"." required:"" help:"The root directory to build. All other paths are relative to the root"`
-	ForceBuild bool            `name:"force" short:"f" help:"Force all packages to be built/tested, regardless of whether they have changed"`
+	ConfigFile kong.ConfigFlag `name:"config" short:"c" help:"A config file to load default flags from."`
+	Root       string          `name:"root" arg:""  default:"." required:"" help:"The root directory to build. All other paths are relative to the root."`
+	ForceBuild bool            `name:"force" short:"f" help:"Force all packages to be built/tested, regardless of whether they have changed."`
 }
 
 type installCmd struct {

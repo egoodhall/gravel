@@ -12,8 +12,8 @@ changed since the last run.
 `, " \n\t")
 
 type Cli struct {
-	Build   buildCmd   `name:"build" cmd:"" help:"Run a test/build cycle for any packages that have changed since the last run"`
-	Version versionCmd `name:"version" cmd:"" help:"Print out the version of the gravel binary and exit"`
-	Plan    planCmd    `name:"plan" cmd:""`
-	Install installCmd `name:"install" cmd:""`
+	Build   buildCmd   `name:"build" cmd:"" help:"Run a test/build cycle."`
+	Version versionCmd `name:"version" cmd:"" help:"Print version information for the gravel binary and exit."`
+	Plan    planCmd    `name:"plan" cmd:"" help:"Print the build plan and exit."`
+	Install installCmd `name:"install" cmd:"" help:"Install binaries into the $PATH."`
 }
