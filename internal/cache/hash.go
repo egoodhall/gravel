@@ -69,13 +69,7 @@ func computeHashes(graph types.Graph[resolve.Pkg], paths gravel.Paths) (*resolve
 			return nil, err
 		}
 		cacheFile.Packages[pkg.PkgPath] = hash
-
-		bfc, err := resolve.BuildFile(pkg)
-		if err != nil {
-			continue
-		}
-
-		cacheFile.Versions[pkg.PkgPath] = bfc.Version
+		cacheFile.Versions[pkg.PkgPath] = resolve.Version(pkg).Version
 	}
 	return cacheFile, nil
 }

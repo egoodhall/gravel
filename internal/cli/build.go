@@ -117,17 +117,12 @@ func printJson(obj any) error {
 
 func updateVersionFiles(plan build.Plan, hashes resolve.Hashes) error {
 	for _, tgt := range plan.Build {
-		bf, err := resolve.BuildFile(tgt.Pkg)
-		if err != nil {
-			// No need to update a hash if we don't
-			// have a build file to write to
-			continue
-		}
+		vf := resolve.Version(tgt.Pkg)
 
 		// Because we're writing to the version file,
 		// we need to rehash the package that was built
-		bf.Version = tgt.Version
-		if err := bf.Save(); err != nil {
+		vf.Version = tgt.Version
+		if err := vf.Save(); err != nil {
 			return err
 		}
 
