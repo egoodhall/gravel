@@ -1,0 +1,15 @@
+on:
+  push:
+
+jobs:
+  ci:
+    name: "CI"
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/setup-go@v3
+      with:
+        go-version-file: go.mod
+    
+    - run: go build ./cmd/gravel
+
+    - run: ./gravel build --no-cache

@@ -98,7 +98,7 @@ func (cmd *buildCmd) Run() error {
 		return err
 	}
 
-	if os.Getenv("CI") != "" && cmd.buildAction == build.Build {
+	if cmd.buildAction == build.Build && (cmd.Strategy != nil || cmd.Segment != nil) {
 		// Now that the build is finished, we can update any version
 		// files and regenerate the hashes for the built packages.
 		if err := updateVersionFiles(plan, hashes); err != nil {

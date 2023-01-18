@@ -26,10 +26,10 @@ func DependencyGraph(ctx context.Context, paths gravel.Paths) (types.Graph[Pkg],
 	graph := types.NewGraph[Pkg]()
 
 	for _, pkg := range pkgs {
-		if len(pkg.Imports) == 0 {
-			graph.PutNode(NewPkg(pkg))
-		}
+		// Add as a node, regardless of whether we have an edge
+		graph.PutNode(NewPkg(pkg))
 
+		// Add any edges to the graph as well
 		for _, dep := range pkg.Imports {
 			dpkg := NewPkg(dep)
 
