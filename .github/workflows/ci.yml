@@ -12,6 +12,4 @@ jobs:
       with:
         go-version-file: go.mod
     
-    - run: go build ./cmd/gravel
-
-    - run: ./gravel build --no-cache
+    - run: go run ./cmd/gravel build --no-cache
