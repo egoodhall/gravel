@@ -20,7 +20,7 @@ jobs:
         restore-keys: |
           ${{ github.ref_name }}-${{ github.event.before }}
           main-${{ github.event.before }}
-    
+
     - run: go run ./cmd/gravel build --version.strategy=date
 
     - uses: stefanzweifel/git-auto-commit-action@v4.16.0
