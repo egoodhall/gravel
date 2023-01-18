@@ -10,6 +10,15 @@ jobs:
 
     - uses: actions/setup-go@v3
       with:
+        cache: true
         go-version-file: go.mod
+
+    - uses: actions/cache@v3
+      with:
+        path: gravel/cache.json
+        key: ${{ github.ref_name }}-${{ github.event.after }}
+        restore-keys: |
+          ${{ github.ref_name }}-${{ github.event.before }}
+          main-${{ github.event.before }}
     
-    - run: go run ./cmd/gravel build --no-cache
+    - run: go run ./cmd/gravel build
