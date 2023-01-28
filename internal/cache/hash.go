@@ -7,13 +7,11 @@ import (
 
 	"github.com/emm035/gravel/internal/gravel"
 	"github.com/emm035/gravel/internal/resolve"
-	"github.com/emm035/gravel/internal/semver"
 	"github.com/emm035/gravel/internal/types"
 )
 
 var emptyCache = resolve.CacheFile{
 	Packages: nil,
-	Versions: nil,
 }
 
 func NewHashes(graph types.Graph[resolve.Pkg], paths gravel.Paths, ignoreOld bool) (resolve.Hashes, error) {
@@ -60,7 +58,6 @@ var (
 func computeHashes(graph types.Graph[resolve.Pkg], paths gravel.Paths) (*resolve.CacheFile, error) {
 	cacheFile := &resolve.CacheFile{
 		Packages: make(map[string]string),
-		Versions: make(map[string]semver.Version),
 	}
 
 	for pkg := range graph.Nodes() {
@@ -69,7 +66,6 @@ func computeHashes(graph types.Graph[resolve.Pkg], paths gravel.Paths) (*resolve
 			return nil, err
 		}
 		cacheFile.Packages[pkg.PkgPath] = hash
-		cacheFile.Versions[pkg.PkgPath] = resolve.Version(pkg).Version
 	}
 	return cacheFile, nil
 }

@@ -1,6 +1,9 @@
 package build
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/emm035/gravel/internal/gravel"
 	"github.com/emm035/gravel/internal/resolve"
 	"github.com/emm035/gravel/internal/semver"
@@ -15,45 +18,77 @@ type Target struct {
 type Plan struct {
 	Paths gravel.Paths  `json:"paths"`
 	Test  []resolve.Pkg `json:"test"`
-	Build []Target      `json:"build"`
+	Build []resolve.Pkg `json:"build"`
 }
 
-func NewPlan(paths gravel.Paths, vbump semver.Bumper, graph types.Graph[resolve.Pkg], hashes resolve.Hashes) (Plan, error) {
+func NewPlan(paths gravel.Paths, graph types.Graph[resolve.Pkg], hashes resolve.Hashes, targets []string) (Plan, error) {
 	changedPkgPaths := hashes.ChangedPackages()
 	changedPkgs := graph.Nodes().Filter(func(pkg resolve.Pkg) bool {
 		return changedPkgPaths.Has(pkg.PkgPath)
 	})
 
 	dependents := graph.Transpose()
-	test := types.NewSet[resolve.Pkg]()
+	testPkgs := types.NewSet[resolve.Pkg]()
 	for pkg := range changedPkgs {
-		test.Add(pkg)
-		test.AddSet(dependents.Descendants(pkg))
+		testPkgs.Add(pkg)
+		testPkgs.AddSet(dependents.Descendants(pkg))
 	}
 
-	changedVersions := hashes.ChangedVersions()
-	build := types.NewSet[Target]()
+	targetPaths := findDirs(targets)
+	buildPkgs := types.NewSet[resolve.Pkg]()
 	for pkg := range graph.Nodes() {
 		if pkg.PkgName != "main" {
 			// We only want to build main packages,
 			// so this one should be skipped.
 			continue
 		}
-		if changedVersions.Has(pkg.PkgPath) || test.Has(pkg) {
-			// Either the version on this package changed (even
-			// if there were no changes to the code) or an upstream
-			// dependency changed, so we need to rebuild this package.
-			build.Add(Target{
-				Pkg:     pkg,
-				Version: vbump.Bump(hashes.New.Versions[pkg.PkgPath]),
-			})
+
+		if (len(targets) == 0 && testPkgs.Has(pkg)) || targetPaths.Has(pkg.DirPath) || matchesSpecificTarget(targets, pkg) {
+			// Either an upstream dependency changed,
+			// so we need to rebuild this package,
+			// or it matched a specified target
+			buildPkgs.Add(pkg)
 			continue
 		}
 	}
 
 	return Plan{
 		Paths: paths,
-		Test:  test.Slice(),
-		Build: build.Slice(),
+		Test:  testPkgs.Slice(),
+		Build: buildPkgs.Slice(),
 	}, nil
+}
+
+func findDirs(targets []string) types.Set[string] {
+	found := types.NewSet[string]()
+	for _, target := range targets {
+		matches, err := filepath.Glob(target)
+		if err != nil {
+			continue
+		}
+
+		for _, match := range matches {
+			abspath, err := filepath.Abs(match)
+			if err != nil {
+				continue
+			}
+			fi, err := os.Stat(abspath)
+			if err != nil {
+				continue
+			}
+			if fi.IsDir() {
+				found.Add(abspath)
+			}
+		}
+	}
+	return found
+}
+
+func matchesSpecificTarget(targets []string, pkg resolve.Pkg) bool {
+	for _, target := range targets {
+		if target == pkg.PkgPath || target == pkg.Binary {
+			return true
+		}
+	}
+	return false
 }

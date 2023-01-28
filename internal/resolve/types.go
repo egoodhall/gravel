@@ -56,10 +56,8 @@ func (pkg Pkg) Hash() (string, error) {
 	}
 
 	for _, de := range des {
-		switch filepath.Ext(de.Name()) {
-		default:
+		if de.IsDir() {
 			continue
-		case ".go", ".json", ".proto", ".yml", ".yaml":
 		}
 
 		f, err := os.Open(filepath.Join(pkg.DirPath, de.Name()))

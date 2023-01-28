@@ -22,6 +22,9 @@ type BuildFlags struct {
 	planOnly    bool
 	buildAction build.Action
 
+	// Build targets filter
+	Targets []string `name:"targets" arg:"" optional:"" help:"Targets to build. If none are specified, all eligible targets will be built."`
+
 	// Build features
 	Cache  bool `name:"cache" negatable:"" default:"true" help:"Use a build cache so only changed packages (and downstream dependents) are tested/built."`
 	Test   bool `name:"tests" negatable:"" default:"true" help:"Run tests for changed packages during the build process."`
@@ -62,12 +65,7 @@ func (cmd *buildCmd) Run() error {
 		return err
 	}
 
-	vbump, err := semver.NewBumper(cmd.Segment, cmd.Strategy, cmd.Extra)
-	if err != nil {
-		return err
-	}
-
-	plan, err := build.NewPlan(paths, vbump, graph, hashes)
+	plan, err := build.NewPlan(paths, graph, hashes, cmd.Targets)
 	if err != nil {
 		return err
 	}
@@ -101,14 +99,6 @@ func (cmd *buildCmd) Run() error {
 		return err
 	}
 
-	if cmd.buildAction == build.Build && (cmd.Strategy != nil || cmd.Segment != nil) {
-		// Now that the build is finished, we can update any version
-		// files and regenerate the hashes for the built packages.
-		if err := updateVersionFiles(plan, hashes); err != nil {
-			return err
-		}
-	}
-
 	if cmd.Cache {
 		return cache.Store(paths, hashes)
 	} else {
@@ -120,22 +110,4 @@ func printJson(obj any) error {
 	enc := json.NewEncoder(os.Stdout)
 	enc.SetIndent("", "  ")
 	return enc.Encode(obj)
-}
-
-func updateVersionFiles(plan build.Plan, hashes resolve.Hashes) error {
-	for _, tgt := range plan.Build {
-		vf := resolve.Version(tgt.Pkg)
-
-		// Because we're writing to the version file,
-		// we need to rehash the package that was built
-		vf.Version = tgt.Version
-		if err := vf.Save(); err != nil {
-			return err
-		}
-
-		if err := hashes.New.ReHash(tgt.Pkg, tgt.Version); err != nil {
-			return err
-		}
-	}
-	return nil
 }

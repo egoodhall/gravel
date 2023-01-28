@@ -19,14 +19,10 @@ func Exec(ctx context.Context, cfg Config) error {
 		return err
 	}
 
-	if err := execDockerBuilds(ctx, cfg); err != nil {
-		return err
-	}
-
 	return nil
 }
 
-func generateBuildArgs(action Action, paths gravel.Paths, tgt Target) []string {
+func generateBuildArgs(action Action, paths gravel.Paths, tgt resolve.Pkg) []string {
 	commit, _ := resolve.GitCommit()
 
 	args := []string{action.String()}
@@ -39,7 +35,7 @@ func generateBuildArgs(action Action, paths gravel.Paths, tgt Target) []string {
 	}
 
 	args = append(args,
-		"-ldflags", buildLdFlags(tgt.Version.String(), commit),
+		"-ldflags", buildLdFlags("v0.0.0", commit),
 		tgt.PkgPath,
 	)
 	return args
