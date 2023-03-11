@@ -10,7 +10,6 @@ import (
 	"github.com/emm035/gravel/internal/cache"
 	"github.com/emm035/gravel/internal/gravel"
 	"github.com/emm035/gravel/internal/resolve"
-	"github.com/emm035/gravel/internal/semver"
 )
 
 type BuildFlags struct {
@@ -35,11 +34,6 @@ type BuildFlags struct {
 	DockerRegistry string `name:"docker.registry" default:"" help:"The docker registry to use when building image tags."`
 	DockerOrg      string `name:"docker.org" default:"" help:"The docker organization to use when building image tags."`
 	DockerPush     bool   `name:"docker.push" default:"false" help:"Push images to the remote docker registry."`
-
-	// Versioning configuration
-	Strategy *semver.Strategy `name:"version.strategy" xor:"type" help:"A version update strategy to use when a build occurs."`
-	Segment  *semver.Segment  `name:"version.segment" xor:"type" help:"A semantic version segment to update."`
-	Extra    string           `name:"version.extra" default:"" help:"An extra string that will be added to the updated version. For a value of 'test', the new version would be: 'v##.##.##-test'."`
 }
 
 type buildCmd struct {

@@ -1,14 +1,34 @@
-package resolve
+package semver
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/emm035/gravel/internal/gravel"
-	"github.com/emm035/gravel/internal/semver"
 	"github.com/go-git/go-git/v5"
 )
 
-func AllTags(paths gravel.Paths) (map[string]*semver.Version, error) {
+func WriteTags(paths gravel.Paths, versions map[string]*Version) error {
+	repo, err := git.PlainOpen(paths.RootDir)
+	if err != nil {
+		return err
+	}
+
+	head, err := repo.Head()
+	if err != nil {
+		return err
+	}
+
+	for binary, version := range versions {
+		if _, err := repo.CreateTag(fmt.Sprintf("%s/%s", binary, version), head.Hash(), nil); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func LoadTags(paths gravel.Paths) (map[string]*Version, error) {
 	repo, err := git.PlainOpen(paths.RootDir)
 	if err != nil {
 		return nil, err
@@ -39,7 +59,7 @@ func AllTags(paths gravel.Paths) (map[string]*semver.Version, error) {
 		return nil, err
 	}
 
-	versions := make(map[string]*semver.Version)
+	versions := make(map[string]*Version)
 	for ref, err := refs.Next(); err == nil; ref, err = refs.Next() {
 		if !ref.Name().IsTag() {
 			continue
@@ -51,7 +71,7 @@ func AllTags(paths gravel.Paths) (map[string]*semver.Version, error) {
 			continue
 		}
 
-		sver, err := semver.Parse(ver)
+		sver, err := Parse(ver)
 		if err != nil {
 			return nil, err
 		}
@@ -66,7 +86,7 @@ func AllTags(paths gravel.Paths) (map[string]*semver.Version, error) {
 		}
 
 		if cver, ok := versions[bin]; ok {
-			versions[bin] = semver.Max(sver, cver)
+			versions[bin] = Max(sver, cver)
 		} else {
 			versions[bin] = sver
 		}

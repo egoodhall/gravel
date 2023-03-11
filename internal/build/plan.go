@@ -52,7 +52,7 @@ func NewPlan(paths gravel.Paths, graph types.Graph[resolve.Pkg], hashes resolve.
 		}
 	}
 
-	versions, err := resolve.AllTags(paths)
+	versions, err := semver.LoadTags(paths)
 	if err != nil {
 		return Plan{}, err
 	}

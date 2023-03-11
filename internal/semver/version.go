@@ -2,7 +2,6 @@ package semver
 
 import (
 	"fmt"
-	"time"
 )
 
 type Version struct {
@@ -14,43 +13,6 @@ type Version struct {
 
 func Zero() *Version {
 	return &Version{}
-}
-
-// bumpSegment to the next version, setting any "lower" segments
-// back to 0.
-func bumpSegment(version Version, segment Segment, extra string) Version {
-	version.Extra = extra
-	switch segment {
-	case SegmentMajor:
-		version.Major++
-		version.Minor = 0
-		version.Patch = 0
-	case SegmentMinor:
-		version.Minor++
-		version.Patch = 0
-	case SegmentPatch:
-		version.Patch++
-	}
-	return version
-}
-
-func bumpStrategy(version Version, strategy Strategy, extra string) Version {
-	version.Extra = extra
-	switch strategy {
-	case StrategyDate:
-		today := time.Now()
-		if uint64(today.Year())%100 != version.Major {
-			version.Major = uint64(today.Year()) % 100
-			version.Minor = uint64(today.Month())
-			version.Patch = 0
-		} else if uint64(today.Month()) != version.Minor {
-			version.Minor = uint64(today.Month())
-			version.Patch = 0
-		} else {
-			version.Patch++
-		}
-	}
-	return version
 }
 
 func (v *Version) UnmarshalText(p []byte) error {
