@@ -12,13 +12,13 @@ import (
 
 type Target struct {
 	resolve.Pkg
-	Version semver.Version
+	Version *semver.Version
 }
 
 type Plan struct {
 	Paths gravel.Paths  `json:"paths"`
 	Test  []resolve.Pkg `json:"test"`
-	Build []resolve.Pkg `json:"build"`
+	Build []Target      `json:"build"`
 }
 
 func NewPlan(paths gravel.Paths, graph types.Graph[resolve.Pkg], hashes resolve.Hashes, targets []string) (Plan, error) {
@@ -52,10 +52,27 @@ func NewPlan(paths gravel.Paths, graph types.Graph[resolve.Pkg], hashes resolve.
 		}
 	}
 
+	versions, err := resolve.AllTags(paths)
+	if err != nil {
+		return Plan{}, err
+	}
+
+	buildTgts := types.NewSet[Target]()
+	for pkg := range buildPkgs {
+		tgt := Target{
+			Pkg:     pkg,
+			Version: semver.Zero(),
+		}
+		if version, ok := versions[tgt.Binary]; ok {
+			tgt.Version = version
+		}
+		buildTgts.Add(tgt)
+	}
+
 	return Plan{
 		Paths: paths,
 		Test:  testPkgs.Slice(),
-		Build: buildPkgs.Slice(),
+		Build: buildTgts.Slice(),
 	}, nil
 }
 

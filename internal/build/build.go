@@ -22,7 +22,7 @@ func Exec(ctx context.Context, cfg Config) error {
 	return nil
 }
 
-func generateBuildArgs(action Action, paths gravel.Paths, tgt resolve.Pkg) []string {
+func generateBuildArgs(action Action, paths gravel.Paths, tgt Target) []string {
 	commit, _ := resolve.GitCommit()
 
 	args := []string{action.String()}
@@ -35,7 +35,7 @@ func generateBuildArgs(action Action, paths gravel.Paths, tgt resolve.Pkg) []str
 	}
 
 	args = append(args,
-		"-ldflags", buildLdFlags("v0.0.0", commit),
+		"-ldflags", buildLdFlags(tgt.Version.String(), commit),
 		tgt.PkgPath,
 	)
 	return args

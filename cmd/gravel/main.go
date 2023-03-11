@@ -6,9 +6,9 @@ import (
 )
 
 func main() {
-	ktx := kong.Parse(new(cli.Cli),
+	ctx := kong.Parse(new(cli.Cli),
 		kong.Description(cli.Description),
 		kong.Configuration(cli.YAML),
 	)
-	ktx.FatalIfErrorf(ktx.Run())
+	ctx.FatalIfErrorf(ctx.Run())
 }
