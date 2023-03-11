@@ -4,7 +4,6 @@ go 1.19
 
 require (
 	github.com/alecthomas/kong v0.7.1
-	github.com/alecthomas/kong-yaml v0.1.2-0.20221027110108-8f212d7f5168
 	github.com/go-git/go-git/v5 v5.4.2
 	golang.org/x/sync v0.0.0-20220923202941-7f9b1623fab7
 	golang.org/x/tools v0.1.12

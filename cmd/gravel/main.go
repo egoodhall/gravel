@@ -8,7 +8,6 @@ import (
 func main() {
 	ctx := kong.Parse(new(cli.Cli),
 		kong.Description(cli.Description),
-		kong.Configuration(cli.YAML),
 	)
 	ctx.FatalIfErrorf(ctx.Run())
 }
