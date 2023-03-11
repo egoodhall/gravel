@@ -26,3 +26,22 @@ $ gravel build
 $ ls ./gravel/bin
 gravel
 ```
+
+### Embedding Version Information
+
+Binaries built by gravel can have their version embedded as shown below:
+```go
+package example
+
+import (
+  "fmt"
+
+  "github.com/emm035/gravel/pkg/buildinfo"
+)
+
+func PrintBuildInfo() {
+  // These values will be set by gravel during the build
+  fmt.Println("version:", buildinfo.GetVersion())
+  fmt.Println("commit: ", buildinfo.GetCommit())
+}
+```
