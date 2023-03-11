@@ -13,10 +13,6 @@ func Store(paths gravel.Paths, hashes resolve.Hashes) error {
 		return err
 	}
 
-	if err := os.WriteFile(paths.GitignoreFile, []byte{'*'}, 0666); err != nil {
-		return err
-	}
-
 	if err := storeData(paths.HashesFile, hashes.New); err != nil {
 		return err
 	}
