@@ -5,9 +5,9 @@ import (
 	"errors"
 	"os"
 
-	"github.com/emm035/gravel/internal/gravel"
-	"github.com/emm035/gravel/internal/resolve"
-	"github.com/emm035/gravel/internal/types"
+	"github.com/egoodhall/gravel/internal/gravel"
+	"github.com/egoodhall/gravel/internal/resolve"
+	"github.com/egoodhall/gravel/internal/types"
 )
 
 var emptyCache = resolve.CacheFile{

@@ -6,9 +6,9 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/emm035/gravel/internal/gravel"
-	"github.com/emm035/gravel/internal/resolve"
-	"github.com/emm035/gravel/internal/semver"
+	"github.com/egoodhall/gravel/internal/gravel"
+	"github.com/egoodhall/gravel/internal/resolve"
+	"github.com/egoodhall/gravel/internal/semver"
 )
 
 type releaseCmd struct {

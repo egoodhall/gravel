@@ -2,7 +2,7 @@ package cli
 
 import (
 	"github.com/alecthomas/kong"
-	"github.com/emm035/gravel/internal/build"
+	"github.com/egoodhall/gravel/internal/build"
 )
 
 type InstallFlags struct {

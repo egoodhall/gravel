@@ -1,4 +1,4 @@
-module github.com/emm035/gravel
+module github.com/egoodhall/gravel
 
 go 1.19
 

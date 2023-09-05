@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/emm035/gravel/internal/semver"
+	"github.com/egoodhall/gravel/internal/semver"
 )
 
 var ErrBuildFileNotExist = fmt.Errorf("load build file: %w", os.ErrNotExist)

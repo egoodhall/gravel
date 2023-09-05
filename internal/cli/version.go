@@ -4,7 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 
-	"github.com/emm035/gravel/pkg/buildinfo"
+	"github.com/egoodhall/gravel/pkg/buildinfo"
 )
 
 type versionCmd struct {

@@ -1,8 +1,8 @@
 package resolve
 
 import (
-	"github.com/emm035/gravel/internal/semver"
-	"github.com/emm035/gravel/internal/types"
+	"github.com/egoodhall/gravel/internal/semver"
+	"github.com/egoodhall/gravel/internal/types"
 )
 
 type Hashes struct {

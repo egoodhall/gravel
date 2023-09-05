@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/emm035/gravel/internal/gravel"
+	"github.com/egoodhall/gravel/internal/gravel"
 	"github.com/go-git/go-git/v5"
 )
 

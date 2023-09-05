@@ -6,10 +6,10 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/emm035/gravel/internal/build"
-	"github.com/emm035/gravel/internal/cache"
-	"github.com/emm035/gravel/internal/gravel"
-	"github.com/emm035/gravel/internal/resolve"
+	"github.com/egoodhall/gravel/internal/build"
+	"github.com/egoodhall/gravel/internal/cache"
+	"github.com/egoodhall/gravel/internal/gravel"
+	"github.com/egoodhall/gravel/internal/resolve"
 )
 
 type BuildFlags struct {

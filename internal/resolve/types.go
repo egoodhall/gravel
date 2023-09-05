@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/emm035/gravel/internal/semver"
+	"github.com/egoodhall/gravel/internal/semver"
 	"golang.org/x/tools/go/packages"
 )
 

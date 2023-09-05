@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/emm035/gravel/internal/gravel"
-	"github.com/emm035/gravel/internal/resolve"
+	"github.com/egoodhall/gravel/internal/gravel"
+	"github.com/egoodhall/gravel/internal/resolve"
 )
 
 func Store(paths gravel.Paths, hashes resolve.Hashes) error {

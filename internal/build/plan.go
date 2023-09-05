@@ -4,10 +4,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/emm035/gravel/internal/gravel"
-	"github.com/emm035/gravel/internal/resolve"
-	"github.com/emm035/gravel/internal/semver"
-	"github.com/emm035/gravel/internal/types"
+	"github.com/egoodhall/gravel/internal/gravel"
+	"github.com/egoodhall/gravel/internal/resolve"
+	"github.com/egoodhall/gravel/internal/semver"
+	"github.com/egoodhall/gravel/internal/types"
 )
 
 type Target struct {

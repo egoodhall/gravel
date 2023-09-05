@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/alecthomas/kong"
-	"github.com/emm035/gravel/internal/cli"
+	"github.com/egoodhall/gravel/internal/cli"
 )
 
 func main() {

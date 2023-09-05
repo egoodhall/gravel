@@ -5,7 +5,7 @@ Gravel is a build tool for Go monorepos. To speed up builds, gravel caches a has
 ### Installation
 
 ```
-$ go install github.com/emm035/gravel@latest
+$ go install github.com/egoodhall/gravel@latest
 ```
 
 ### Usage
@@ -23,7 +23,7 @@ package example
 import (
   "fmt"
 
-  "github.com/emm035/gravel/pkg/buildinfo"
+  "github.com/egoodhall/gravel/pkg/buildinfo"
 )
 
 func PrintBuildInfo() {

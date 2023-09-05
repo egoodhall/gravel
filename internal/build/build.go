@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/emm035/gravel/internal/gravel"
-	"github.com/emm035/gravel/internal/resolve"
+	"github.com/egoodhall/gravel/internal/gravel"
+	"github.com/egoodhall/gravel/internal/resolve"
 )
 
 func Exec(ctx context.Context, cfg Config) error {
@@ -44,7 +44,7 @@ func generateBuildArgs(action Action, paths gravel.Paths, tgt Target) []string {
 func buildLdFlags(version, commit string) string {
 	return strings.Join([]string{
 		"-s -w",
-		fmt.Sprintf("-X github.com/emm035/gravel/pkg/buildinfo.version=%s", version),
-		fmt.Sprintf("-X github.com/emm035/gravel/pkg/buildinfo.commit=%s", commit),
+		fmt.Sprintf("-X github.com/egoodhall/gravel/pkg/buildinfo.version=%s", version),
+		fmt.Sprintf("-X github.com/egoodhall/gravel/pkg/buildinfo.commit=%s", commit),
 	}, " ")
 }

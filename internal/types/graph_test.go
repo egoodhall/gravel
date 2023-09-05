@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/emm035/gravel/internal/types"
+	"github.com/egoodhall/gravel/internal/types"
 )
 
 func TestGraph(t *testing.T) {

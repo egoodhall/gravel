@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/emm035/gravel/internal/gravel"
-	"github.com/emm035/gravel/internal/types"
+	"github.com/egoodhall/gravel/internal/gravel"
+	"github.com/egoodhall/gravel/internal/types"
 	"golang.org/x/tools/go/packages"
 )
 
