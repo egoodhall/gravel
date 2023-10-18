@@ -94,7 +94,7 @@ func (cmd *buildCmd) Run() error {
 	}
 
 	if cmd.Cache {
-		return cache.Store(paths, hashes)
+		return cache.Write(paths, hashes)
 	} else {
 		return nil
 	}

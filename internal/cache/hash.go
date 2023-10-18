@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"compress/gzip"
 	"encoding/json"
 	"errors"
 	"os"
@@ -36,18 +37,22 @@ func loadHashes(paths gravel.Paths, fakeLoad bool) (*resolve.CacheFile, error) {
 		return &emptyCache, nil
 	}
 
-	data, err := os.ReadFile(paths.HashesFile)
+	file, err := os.Open(paths.HashesFile)
 	if os.IsNotExist(err) {
 		return &emptyCache, nil
 	} else if err != nil {
 		return nil, err
 	}
 
-	cache := new(resolve.CacheFile)
-	if err := json.Unmarshal(data, &cache); err != nil {
+	decfile, err := gzip.NewReader(file)
+	if err != nil {
 		return nil, err
 	}
 
+	cache := new(resolve.CacheFile)
+	if err := json.NewDecoder(decfile).Decode(cache); err != nil {
+		return nil, err
+	}
 	return cache, nil
 }
 

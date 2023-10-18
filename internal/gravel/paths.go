@@ -6,8 +6,8 @@ import (
 
 const (
 	GravelDirName  = "gravel"
-	PlanFileName   = "plan.json"
-	HashesFileName = "cache.json"
+	PlanFileName   = "plan.json.gz"
+	HashesFileName = "cache.json.gz"
 	BinDirName     = "bin"
 )
 

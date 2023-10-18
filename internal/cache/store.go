@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"compress/gzip"
 	"encoding/json"
 	"os"
 
@@ -8,7 +9,7 @@ import (
 	"github.com/egoodhall/gravel/internal/resolve"
 )
 
-func Store(paths gravel.Paths, hashes resolve.Hashes) error {
+func Write(paths gravel.Paths, hashes resolve.Hashes) error {
 	if err := os.MkdirAll(paths.BinDir, 0777); err != nil {
 		return err
 	}
@@ -21,14 +22,14 @@ func Store(paths gravel.Paths, hashes resolve.Hashes) error {
 }
 
 func storeData(path string, data any) error {
-	jsn, err := json.MarshalIndent(data, "", "  ")
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0660)
 	if err != nil {
 		return err
 	}
+	defer file.Close()
 
-	if err := os.WriteFile(path, jsn, 0666); err != nil {
-		return err
-	}
+	encw := gzip.NewWriter(file)
+	defer encw.Close()
 
-	return nil
+	return json.NewEncoder(encw).Encode(data)
 }
