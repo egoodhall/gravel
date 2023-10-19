@@ -21,4 +21,8 @@ jobs:
           ${{ github.ref_name }}-${{ github.event.before }}
           main-${{ github.event.before }}
 
-    - run: go run ./cmd/gravel build
+    - name: Print build plan
+      run: go run ./cmd/gravel plan
+
+    - name: Run build
+      run: go run ./cmd/gravel build
