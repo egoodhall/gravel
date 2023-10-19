@@ -15,7 +15,7 @@ jobs:
 
     - uses: actions/cache@v3
       with:
-        path: gravel/cache.json
+        path: gravel/cache.json.gz
         key: ${{ github.ref_name }}-${{ github.event.after }}
         restore-keys: |
           ${{ github.ref_name }}-${{ github.event.before }}
