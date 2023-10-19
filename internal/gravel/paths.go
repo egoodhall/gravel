@@ -9,6 +9,7 @@ const (
 	PlanFileName   = "plan.json.gz"
 	HashesFileName = "cache.json.gz"
 	BinDirName     = "bin"
+	IgnoreFileName = ".gravelignore"
 )
 
 type Paths struct {

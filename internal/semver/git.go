@@ -1,6 +1,7 @@
 package semver
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -30,7 +31,9 @@ func WriteTags(paths gravel.Paths, versions map[string]*Version) error {
 
 func LoadTags(paths gravel.Paths) (map[string]*Version, error) {
 	repo, err := git.PlainOpen(paths.RootDir)
-	if err != nil {
+	if errors.Is(err, git.ErrRepositoryNotExists) {
+		return nil, nil
+	} else if err != nil {
 		return nil, err
 	}
 

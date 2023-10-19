@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/egoodhall/gravel/internal/gravel"
 	"github.com/egoodhall/gravel/internal/semver"
 	"golang.org/x/tools/go/packages"
 )
@@ -49,6 +50,12 @@ func (pkg Pkg) String() string {
 
 func (pkg Pkg) Hash() (string, error) {
 	hash := sha256.New()
+
+	if _, err := os.Stat(filepath.Join(pkg.DirPath, gravel.IgnoreFileName)); err == nil {
+		return "", nil
+	} else if !os.IsNotExist(err) {
+		return "", err
+	}
 
 	des, err := os.ReadDir(pkg.DirPath)
 	if err != nil {

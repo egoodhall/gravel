@@ -1,7 +1,6 @@
 package resolve
 
 import (
-	"github.com/egoodhall/gravel/internal/semver"
 	"github.com/egoodhall/gravel/internal/types"
 )
 
@@ -12,15 +11,6 @@ type Hashes struct {
 
 type CacheFile struct {
 	Packages map[string]string `json:"packages"`
-}
-
-func (cf CacheFile) ReHash(pkg Pkg, version semver.Version) error {
-	hash, err := pkg.Hash()
-	if err != nil {
-		return err
-	}
-	cf.Packages[pkg.PkgPath] = hash
-	return nil
 }
 
 func (h Hashes) ChangedPackages() types.Set[string] {

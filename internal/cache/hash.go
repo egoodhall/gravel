@@ -69,6 +69,8 @@ func computeHashes(graph types.Graph[resolve.Pkg], paths gravel.Paths) (*resolve
 		hash, err := pkg.Hash()
 		if err != nil {
 			return nil, err
+		} else if hash == "" {
+			continue
 		}
 		cacheFile.Packages[pkg.PkgPath] = hash
 	}
