@@ -30,7 +30,7 @@ func (cmd *watchCmd) Run() error {
 		return err
 	}
 
-	fmt.Printf("Watching files in %s for changes", paths.RootDir)
+	fmt.Printf("Watching files in %s for changes\n", paths.RootDir)
 
 	for {
 		select {
