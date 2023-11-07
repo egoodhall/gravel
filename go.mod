@@ -4,6 +4,7 @@ go 1.21
 
 require (
 	github.com/alecthomas/kong v0.7.1
+	github.com/fsnotify/fsnotify v1.7.0
 	github.com/go-git/go-git/v5 v5.6.0
 	golang.org/x/sync v0.1.0
 	golang.org/x/tools v0.7.0

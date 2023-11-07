@@ -12,7 +12,7 @@ import (
 )
 
 type releaseCmd struct {
-	InstallFlags
+	installFlags
 	Mods map[string]semver.Mod `name:"mod" help:"Modifications to apply to existing versions"`
 	Tag  bool                  `name:"tag" help:"Write the updated versions as git tags"`
 }

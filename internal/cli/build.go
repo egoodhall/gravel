@@ -12,32 +12,9 @@ import (
 	"github.com/egoodhall/gravel/internal/resolve"
 )
 
-type BuildFlags struct {
-	InstallFlags
-
-	// Internal flags used by other commands
-	// to configure behavior when invoking
-	// the build command.
-	planOnly    bool
-	buildAction build.Action
-
-	// Build targets filter
-	Targets []string `name:"targets" arg:"" optional:"" help:"Targets to build. If none are specified, all eligible targets will be built."`
-
-	// Build features
-	Cache  bool `name:"cache" negatable:"" default:"true" help:"Use a build cache so only changed packages (and downstream dependents) are tested/built."`
-	Test   bool `name:"tests" negatable:"" default:"true" help:"Run tests for changed packages during the build process."`
-	Binary bool `name:"binary" negatable:"" default:"true" help:"Build a binary in the $root/gravel/bin directory"`
-	Docker bool `name:"docker" negatable:"" default:"false" help:"Build a docker image containing the output binary"`
-
-	// Docker configuration
-	DockerRegistry string `name:"docker.registry" default:"" help:"The docker registry to use when building image tags."`
-	DockerOrg      string `name:"docker.org" default:"" help:"The docker organization to use when building image tags."`
-	DockerPush     bool   `name:"docker.push" default:"false" help:"Push images to the remote docker registry."`
-}
-
 type buildCmd struct {
-	BuildFlags
+	installFlags
+	buildFlags
 }
 
 func (cmd *buildCmd) Run() error {
