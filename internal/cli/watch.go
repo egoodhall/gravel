@@ -30,12 +30,15 @@ func (cmd *watchCmd) Run() error {
 		return err
 	}
 
+	fmt.Printf("Watching files in %s for changes", paths.RootDir)
+
 	for {
 		select {
 		case file := <-events:
 			if relfile, err := filepath.Rel(paths.RootDir, file); err == nil {
 				file = relfile
 			}
+
 			fmt.Printf("%s changed, rebuilding.\n", file)
 
 			if err := (&buildCmd{
