@@ -31,5 +31,5 @@ jobs:
       uses: ko-build/setup-ko@v0.6
     
     - name: Build container
-      run: ko build --base-import-paths .
+      run: ko build --bare .
     
