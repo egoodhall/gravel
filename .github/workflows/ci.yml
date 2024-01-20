@@ -22,14 +22,14 @@ jobs:
           main-${{ github.event.before }}
 
     - name: Print build plan
-      run: go run ./cmd/gravel plan
+      run: go run . plan
 
     - name: Run build
-      run: go run ./cmd/gravel build
+      run: go run . build
     
     - name: Set up Ko
       uses: ko-build/setup-ko@v0.6
     
     - name: Build container
-      run: ko build --base-import-paths ./cmd/gravel
+      run: ko build --base-import-paths .
     
