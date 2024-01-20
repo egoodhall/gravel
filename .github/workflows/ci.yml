@@ -26,3 +26,10 @@ jobs:
 
     - name: Run build
       run: go run ./cmd/gravel build
+    
+    - name: Set up Ko
+      uses: ko-build/setup-ko@v0.6
+    
+    - name: Build container
+      run: ko build ./cmd/gravel
+    
