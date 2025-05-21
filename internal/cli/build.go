@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"os"
-	"os/signal"
 
 	"github.com/egoodhall/gravel/internal/build"
 	"github.com/egoodhall/gravel/internal/cache"
@@ -17,10 +16,7 @@ type buildCmd struct {
 	buildFlags
 }
 
-func (cmd *buildCmd) Run() error {
-	ctx, cancel := signal.NotifyContext(context.TODO(), os.Interrupt, os.Kill)
-	defer cancel()
-
+func (cmd *buildCmd) Run(ctx context.Context) error {
 	paths, err := gravel.NewPaths(cmd.Root)
 	if err != nil {
 		return err

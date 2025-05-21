@@ -3,8 +3,6 @@ package cli
 import (
 	"context"
 	"fmt"
-	"os"
-	"os/signal"
 	"path/filepath"
 
 	"github.com/egoodhall/gravel/internal/build"
@@ -16,10 +14,7 @@ type watchCmd struct {
 	buildFlags
 }
 
-func (cmd *watchCmd) Run() error {
-	ctx, cancel := signal.NotifyContext(context.TODO(), os.Interrupt, os.Kill)
-	defer cancel()
-
+func (cmd *watchCmd) Run(ctx context.Context) error {
 	paths, err := gravel.NewPaths(cmd.Root)
 	if err != nil {
 		return err
@@ -44,7 +39,7 @@ func (cmd *watchCmd) Run() error {
 			if err := (&buildCmd{
 				installFlags: cmd.installFlags,
 				buildFlags:   cmd.buildFlags,
-			}).Run(); err != nil {
+			}).Run(ctx); err != nil {
 				fmt.Printf("Build failed: %s\n", file)
 			}
 		case <-ctx.Done():
