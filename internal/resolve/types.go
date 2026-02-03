@@ -10,18 +10,12 @@ import (
 	"strings"
 
 	"github.com/egoodhall/gravel/internal/gravel"
-	"github.com/egoodhall/gravel/internal/semver"
 	"golang.org/x/tools/go/packages"
 )
 
 type Module struct {
 	ModPath string `json:"modPath"`
 	DirPath string `json:"dirPath"`
-}
-
-type VersionedPkg struct {
-	Pkg
-	Version semver.Version `json:"version"`
 }
 
 type Pkg struct {

@@ -47,12 +47,9 @@ func (cmd *buildCmd) Run(ctx context.Context) error {
 		Plan:   plan,
 		Graph:  graph,
 		Options: build.Options{
-			Test: build.TestOptions{
-				Enabled: cmd.Test,
-			},
-			Binary: build.BinaryOptions{
-				Enabled: cmd.Binary,
-			},
+			Test:    build.TestOptions{Enabled: cmd.Test},
+			Binary:  build.BinaryOptions{Enabled: cmd.Binary},
+			Version: cmd.Version,
 		},
 	}
 

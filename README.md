@@ -16,7 +16,7 @@ $ gravel build
 
 ### Embedding Version Information
 
-Binaries built by gravel can have version embedded as shown below:
+Binaries built by gravel can have version and git commit embedded. Pass `-v`/`--version` to set the version string. The commit hash is read from the current git HEAD. Example:
 ```go
 package example
 

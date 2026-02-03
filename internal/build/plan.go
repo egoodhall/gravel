@@ -6,13 +6,11 @@ import (
 
 	"github.com/egoodhall/gravel/internal/gravel"
 	"github.com/egoodhall/gravel/internal/resolve"
-	"github.com/egoodhall/gravel/internal/semver"
 	"github.com/egoodhall/gravel/internal/types"
 )
 
 type Target struct {
 	resolve.Pkg
-	Version *semver.Version
 }
 
 type Plan struct {
@@ -52,21 +50,9 @@ func NewPlan(paths gravel.Paths, graph types.Graph[resolve.Pkg], hashes resolve.
 		}
 	}
 
-	versions, err := semver.LoadTags(paths)
-	if err != nil {
-		return Plan{}, err
-	}
-
 	buildTgts := types.NewSet[Target]()
 	for pkg := range buildPkgs {
-		tgt := Target{
-			Pkg:     pkg,
-			Version: semver.Zero(),
-		}
-		if version, ok := versions[tgt.Binary]; ok {
-			tgt.Version = version
-		}
-		buildTgts.Add(tgt)
+		buildTgts.Add(Target{Pkg: pkg})
 	}
 
 	return Plan{

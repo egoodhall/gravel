@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/egoodhall/gravel/internal/gravel"
 	"github.com/egoodhall/gravel/internal/resolve"
 )
 
@@ -22,12 +21,14 @@ func Exec(ctx context.Context, cfg Config) error {
 	return nil
 }
 
-func generateBuildArgs(action Action, paths gravel.Paths, tgt Target) []string {
+func generateBuildArgs(cfg Config, tgt Target) []string {
 	commit, _ := resolve.GitCommit()
 
-	args := []string{action.String()}
-	if action != Install {
-		outPath := filepath.Join(paths.BinDir, tgt.Binary)
+	version := cfg.Options.Version
+
+	args := []string{cfg.Action.String()}
+	if cfg.Action != Install {
+		outPath := filepath.Join(cfg.Paths.BinDir, tgt.Binary)
 		if p, err := filepath.Rel(tgt.Module.DirPath, outPath); err == nil {
 			outPath = "./" + p
 		}
@@ -35,7 +36,7 @@ func generateBuildArgs(action Action, paths gravel.Paths, tgt Target) []string {
 	}
 
 	args = append(args,
-		"-ldflags", buildLdFlags(tgt.Version.String(), commit),
+		"-ldflags", buildLdFlags(version, commit),
 		tgt.PkgPath,
 	)
 	return args

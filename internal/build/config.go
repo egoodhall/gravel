@@ -23,8 +23,9 @@ const (
 )
 
 type Options struct {
-	Test   TestOptions
-	Binary BinaryOptions
+	Test    TestOptions
+	Binary  BinaryOptions
+	Version string // Optional version to embed in binaries
 }
 
 type TestOptions struct {

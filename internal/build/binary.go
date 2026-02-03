@@ -16,7 +16,7 @@ func execBinaryBuilds(parent context.Context, cfg Config) error {
 
 	eg, ctx := errgroup.WithContext(parent)
 	for _, tgt := range cfg.Plan.Build {
-		args := generateBuildArgs(cfg.Action, cfg.Paths, tgt)
+		args := generateBuildArgs(cfg, tgt)
 
 		c := exec.CommandContext(ctx, "go", args...)
 		c.Stderr = os.Stderr
