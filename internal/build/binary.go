@@ -15,6 +15,10 @@ func execBinaryBuilds(parent context.Context, cfg Config) error {
 		return nil
 	}
 
+	if err := os.MkdirAll(cfg.Paths.BinDir, 0755); err != nil {
+		return err
+	}
+
 	env := buildEnv(cfg.Options.GOOS, cfg.Options.GOARCH)
 
 	eg, ctx := errgroup.WithContext(parent)

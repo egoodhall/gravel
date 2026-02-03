@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/egoodhall/gravel/internal/build"
-	"github.com/egoodhall/gravel/internal/cache"
 	"github.com/egoodhall/gravel/internal/gravel"
 	"github.com/egoodhall/gravel/internal/resolve"
 )
@@ -28,12 +27,14 @@ func (cmd *buildCmd) Run(ctx context.Context) error {
 		return err
 	}
 
-	hashes, err := cache.NewHashes(graph, paths, !cmd.Cache)
+	crossTargets := expandCrossTargets(cmd.Cross)
+	platforms, err := build.PlatformsFromOptions(crossTargets, cmd.GOOS, cmd.GOARCH)
 	if err != nil {
 		return err
 	}
+	alwaysSuffix := cmd.TargetSuffix || len(crossTargets) > 0
 
-	plan, err := build.NewPlan(paths, graph, hashes, cmd.Targets)
+	plan, err := build.NewPlan(paths, graph, cmd.Targets, platforms, alwaysSuffix)
 	if err != nil {
 		return err
 	}
@@ -58,15 +59,7 @@ func (cmd *buildCmd) Run(ctx context.Context) error {
 		},
 	}
 
-	if err := build.Exec(ctx, buildCfg); err != nil {
-		return err
-	}
-
-	if cmd.Cache {
-		return cache.Write(paths, hashes)
-	} else {
-		return nil
-	}
+	return build.Exec(ctx, buildCfg)
 }
 
 func expandCrossTargets(cross []string) []string {

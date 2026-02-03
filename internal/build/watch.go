@@ -20,7 +20,7 @@ func Watch(ctx context.Context, paths gravel.Paths) (chan string, error) {
 	}
 
 	if err := filepath.WalkDir(paths.RootDir, func(path string, d fs.DirEntry, err error) error {
-		if strings.HasPrefix(path, paths.GravelDir) || strings.HasPrefix(path, filepath.Join(paths.RootDir, ".git")) {
+		if strings.HasPrefix(path, paths.SkipDir) || strings.HasPrefix(path, filepath.Join(paths.RootDir, ".git")) {
 			return nil
 		}
 		if d.IsDir() {

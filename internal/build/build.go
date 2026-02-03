@@ -46,6 +46,15 @@ func parseCrossTarget(s string) (goos, goarch string, err error) {
 	return goos, goarch, nil
 }
 
+// BinaryOutputName returns the output basename for a binary built for the given platform.
+// When alwaysSuffix is true, or when the platform is not the current OS/arch, it returns binary_GOOS_GOARCH.
+func BinaryOutputName(binary, goos, goarch string, alwaysSuffix bool) string {
+	if !alwaysSuffix && goos == runtime.GOOS && goarch == runtime.GOARCH {
+		return binary
+	}
+	return binary + "_" + goos + "_" + goarch
+}
+
 func generateBuildArgs(cfg Config, tgt Target) []string {
 	commit, _ := resolve.GitCommit()
 
@@ -60,12 +69,8 @@ func generateBuildArgs(cfg Config, tgt Target) []string {
 		effectiveGOARCH = runtime.GOARCH
 	}
 
-	binName := tgt.Binary
-	crossCompiling := effectiveGOOS != runtime.GOOS || effectiveGOARCH != runtime.GOARCH
 	alwaysSuffix := cfg.Options.TargetSuffix || len(cfg.Options.CrossTargets) > 0
-	if alwaysSuffix || crossCompiling {
-		binName = tgt.Binary + "_" + effectiveGOOS + "_" + effectiveGOARCH
-	}
+	binName := BinaryOutputName(tgt.Binary, effectiveGOOS, effectiveGOARCH, alwaysSuffix)
 
 	args := []string{cfg.Action.String()}
 	if cfg.Action != Install {

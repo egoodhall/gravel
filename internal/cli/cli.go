@@ -32,8 +32,7 @@ type buildFlags struct {
 	Targets []string `name:"targets" arg:"" optional:"" help:"Targets to build. If none are specified, all eligible targets will be built."`
 
 	// Build features
-	Cache   bool   `name:"cache" negatable:"" default:"true" help:"Use a build cache so only changed packages (and downstream dependents) are tested/built."`
-	Test    bool   `name:"tests" negatable:"" default:"true" help:"Run tests for changed packages during the build process."`
+	Test    bool   `name:"tests" negatable:"" default:"true" help:"Run tests for packages that are built and their dependencies."`
 	Binary  bool   `name:"binary" negatable:"" default:"true" help:"Build a binary in the $root/gravel/bin directory"`
 	Version string `name:"version" short:"v" default:"" help:"Version string to embed in built binaries (e.g. for buildinfo)."`
 

@@ -5,19 +5,17 @@ import (
 )
 
 const (
-	GravelDirName  = "gravel"
-	PlanFileName   = "plan.json.gz"
-	HashesFileName = "cache.json.gz"
 	BinDirName     = "bin"
 	IgnoreFileName = ".gravelignore"
+	PlanFileName   = ".gravel_plan.json.gz"
 )
 
 type Paths struct {
-	RootDir    string `json:"rootDir"`
-	GravelDir  string `json:"gravelDir"`
-	PlanFile   string `json:"planFile"`
-	HashesFile string `json:"hashesFile"`
-	BinDir     string `json:"binDir"`
+	RootDir  string `json:"rootDir"`
+	PlanFile string `json:"planFile"`
+	BinDir   string `json:"binDir"`
+	// SkipDir is a directory to exclude from watch (the output bin dir).
+	SkipDir string `json:"skipDir"`
 }
 
 func NewPaths(root string) (Paths, error) {
@@ -26,11 +24,11 @@ func NewPaths(root string) (Paths, error) {
 		return Paths{}, err
 	}
 
+	binDir := filepath.Join(absRoot, BinDirName)
 	return Paths{
-		RootDir:    absRoot,
-		GravelDir:  filepath.Join(absRoot, GravelDirName),
-		PlanFile:   filepath.Join(absRoot, GravelDirName, PlanFileName),
-		HashesFile: filepath.Join(absRoot, GravelDirName, HashesFileName),
-		BinDir:     filepath.Join(absRoot, GravelDirName, BinDirName),
+		RootDir:  absRoot,
+		PlanFile: filepath.Join(absRoot, PlanFileName),
+		BinDir:   binDir,
+		SkipDir:  binDir,
 	}, nil
 }

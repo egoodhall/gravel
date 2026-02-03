@@ -36,4 +36,4 @@ func PrintBuildInfo() {
 
 ### Output
 
-All binaries are placed into `$root/gravel/bin`.
+All binaries are placed into `$root/bin`.
