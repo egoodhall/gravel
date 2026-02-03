@@ -25,7 +25,6 @@ const (
 type Options struct {
 	Test   TestOptions
 	Binary BinaryOptions
-	Docker DockerOptions
 }
 
 type TestOptions struct {
@@ -34,11 +33,4 @@ type TestOptions struct {
 
 type BinaryOptions struct {
 	Enabled bool
-}
-
-type DockerOptions struct {
-	Enabled  bool
-	Push     bool
-	Registry string
-	Org      string
 }

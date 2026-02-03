@@ -27,23 +27,19 @@ func (cmd *watchCmd) Run(ctx context.Context) error {
 
 	fmt.Printf("Watching files in %s for changes\n", paths.RootDir)
 
-	for {
-		select {
-		case file := <-events:
-			if relfile, err := filepath.Rel(paths.RootDir, file); err == nil {
-				file = relfile
-			}
+	for file := range events {
+		if relfile, err := filepath.Rel(paths.RootDir, file); err == nil {
+			file = relfile
+		}
 
-			fmt.Printf("%s changed, rebuilding.\n", file)
+		fmt.Printf("%s changed, rebuilding.\n", file)
 
-			if err := (&buildCmd{
-				installFlags: cmd.installFlags,
-				buildFlags:   cmd.buildFlags,
-			}).Run(ctx); err != nil {
-				fmt.Printf("Build failed: %s\n", file)
-			}
-		case <-ctx.Done():
-			return nil
+		if err := (&buildCmd{
+			installFlags: cmd.installFlags,
+			buildFlags:   cmd.buildFlags,
+		}).Run(ctx); err != nil {
+			fmt.Printf("Build failed: %v\n", err)
 		}
 	}
+	return nil
 }

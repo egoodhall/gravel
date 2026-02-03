@@ -53,12 +53,6 @@ func (cmd *buildCmd) Run(ctx context.Context) error {
 			Binary: build.BinaryOptions{
 				Enabled: cmd.Binary,
 			},
-			Docker: build.DockerOptions{
-				Enabled:  cmd.Docker,
-				Org:      cmd.DockerOrg,
-				Registry: cmd.DockerRegistry,
-				Push:     cmd.DockerPush,
-			},
 		},
 	}
 

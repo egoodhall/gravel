@@ -1,0 +1,10 @@
+[tools]
+go = "latest"
+
+[env]
+_.path = "bin"
+
+[tasks.build]
+run = """
+go build -o bin/gravel ./cmd/gravel/main.go
+"""

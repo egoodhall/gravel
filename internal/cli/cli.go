@@ -36,12 +36,6 @@ type buildFlags struct {
 	Cache  bool `name:"cache" negatable:"" default:"true" help:"Use a build cache so only changed packages (and downstream dependents) are tested/built."`
 	Test   bool `name:"tests" negatable:"" default:"true" help:"Run tests for changed packages during the build process."`
 	Binary bool `name:"binary" negatable:"" default:"true" help:"Build a binary in the $root/gravel/bin directory"`
-	Docker bool `name:"docker" negatable:"" default:"false" help:"Build a docker image containing the output binary"`
-
-	// Docker configuration
-	DockerRegistry string `name:"docker.registry" default:"" help:"The docker registry to use when building image tags."`
-	DockerOrg      string `name:"docker.org" default:"" help:"The docker organization to use when building image tags."`
-	DockerPush     bool   `name:"docker.push" default:"false" help:"Push images to the remote docker registry."`
 
 	// Internal flags used by other commands
 	// to configure behavior when invoking

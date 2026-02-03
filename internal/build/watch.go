@@ -5,10 +5,13 @@ import (
 	"io/fs"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/egoodhall/gravel/internal/gravel"
 	"github.com/fsnotify/fsnotify"
 )
+
+const watchDebounce = 150 * time.Millisecond
 
 func Watch(ctx context.Context, paths gravel.Paths) (chan string, error) {
 	watcher, err := fsnotify.NewWatcher()
@@ -25,18 +28,45 @@ func Watch(ctx context.Context, paths gravel.Paths) (chan string, error) {
 		}
 		return nil
 	}); err != nil {
+		watcher.Close()
 		return nil, err
 	}
 
 	events := make(chan string)
 
 	go func() {
+		defer watcher.Close()
+		defer close(events)
+
+		var (
+			pending string
+			timer   *time.Timer
+		)
+		flush := func() {
+			if pending != "" {
+				select {
+				case events <- pending:
+					pending = ""
+				case <-ctx.Done():
+					return
+				}
+			}
+		}
+
 		for {
 			select {
 			case event := <-watcher.Events:
 				if event.Has(fsnotify.Create) || event.Has(fsnotify.Remove) || event.Has(fsnotify.Write) || event.Has(fsnotify.Rename) {
-					events <- event.Name
+					pending = event.Name
+					if timer == nil {
+						timer = time.NewTimer(watchDebounce)
+					} else {
+						timer.Reset(watchDebounce)
+					}
 				}
+			case <-timer.C:
+				flush()
+				timer = nil
 			case <-ctx.Done():
 				return
 			}
