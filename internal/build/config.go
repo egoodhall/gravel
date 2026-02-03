@@ -26,6 +26,8 @@ type Options struct {
 	Test    TestOptions
 	Binary  BinaryOptions
 	Version string // Optional version to embed in binaries
+	GOOS    string // Target OS for cross-compilation (empty = build for current OS)
+	GOARCH  string // Target architecture for cross-compilation (empty = build for current arch)
 }
 
 type TestOptions struct {

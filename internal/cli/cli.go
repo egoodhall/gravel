@@ -37,6 +37,10 @@ type buildFlags struct {
 	Binary  bool   `name:"binary" negatable:"" default:"true" help:"Build a binary in the $root/gravel/bin directory"`
 	Version string `name:"version" short:"v" default:"" help:"Version string to embed in built binaries (e.g. for buildinfo)."`
 
+	// Cross-compilation
+	GOOS   string `name:"goos" default:"" help:"Target OS for cross-compilation (e.g. linux, darwin, windows)."`
+	GOARCH string `name:"goarch" default:"" help:"Target architecture for cross-compilation (e.g. amd64, arm64)."`
+
 	// Internal flags used by other commands
 	// to configure behavior when invoking
 	// the build command.

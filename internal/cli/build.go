@@ -50,6 +50,8 @@ func (cmd *buildCmd) Run(ctx context.Context) error {
 			Test:    build.TestOptions{Enabled: cmd.Test},
 			Binary:  build.BinaryOptions{Enabled: cmd.Binary},
 			Version: cmd.Version,
+			GOOS:    cmd.GOOS,
+			GOARCH:  cmd.GOARCH,
 		},
 	}
 
