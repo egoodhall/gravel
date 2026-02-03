@@ -23,11 +23,13 @@ const (
 )
 
 type Options struct {
-	Test    TestOptions
-	Binary  BinaryOptions
-	Version string // Optional version to embed in binaries
-	GOOS    string // Target OS for cross-compilation (empty = build for current OS)
-	GOARCH  string // Target architecture for cross-compilation (empty = build for current arch)
+	Test          TestOptions
+	Binary        BinaryOptions
+	Version       string   // Optional version to embed in binaries
+	GOOS          string   // Target OS for single cross-compile (empty = current)
+	GOARCH        string   // Target architecture for single cross-compile (empty = current)
+	CrossTargets  []string // Multiple platforms as "GOOS/GOARCH"; when set, build for each (single GOOS/GOARCH ignored)
+	TargetSuffix  bool     // If true, always add _GOOS_GOARCH to binary name; if false, only when cross-compiling
 }
 
 type TestOptions struct {

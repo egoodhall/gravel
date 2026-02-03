@@ -54,6 +54,12 @@ func Watch(ctx context.Context, paths gravel.Paths) (chan string, error) {
 		}
 
 		for {
+			// Only select on timer.C when timer is set; nil channel never triggers.
+			var timerCh <-chan time.Time
+			if timer != nil {
+				timerCh = timer.C
+			}
+
 			select {
 			case event := <-watcher.Events:
 				if event.Has(fsnotify.Create) || event.Has(fsnotify.Remove) || event.Has(fsnotify.Write) || event.Has(fsnotify.Rename) {
@@ -64,7 +70,7 @@ func Watch(ctx context.Context, paths gravel.Paths) (chan string, error) {
 						timer.Reset(watchDebounce)
 					}
 				}
-			case <-timer.C:
+			case <-timerCh:
 				flush()
 				timer = nil
 			case <-ctx.Done():

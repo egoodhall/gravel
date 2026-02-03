@@ -38,8 +38,10 @@ type buildFlags struct {
 	Version string `name:"version" short:"v" default:"" help:"Version string to embed in built binaries (e.g. for buildinfo)."`
 
 	// Cross-compilation
-	GOOS   string `name:"goos" default:"" help:"Target OS for cross-compilation (e.g. linux, darwin, windows)."`
-	GOARCH string `name:"goarch" default:"" help:"Target architecture for cross-compilation (e.g. amd64, arm64)."`
+	GOOS           string   `name:"goos" default:"" help:"Target OS for a single cross-compile (e.g. linux, darwin, windows)."`
+	GOARCH         string   `name:"goarch" default:"" help:"Target architecture for a single cross-compile (e.g. amd64, arm64)."`
+	Cross          []string `name:"cross" help:"Cross-compile for multiple platforms as GOOS/GOARCH (e.g. linux/amd64,darwin/arm64 or repeat --cross=linux/amd64)."`
+	TargetSuffix   bool     `name:"target-suffix" default:"false" help:"Always include GOOS_GOARCH in binary name (e.g. mybin_linux_amd64), even when building for the current platform."`
 
 	// Internal flags used by other commands
 	// to configure behavior when invoking
