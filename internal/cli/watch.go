@@ -27,6 +27,14 @@ func (cmd *watchCmd) Run(ctx context.Context) error {
 
 	fmt.Printf("Watching files in %s for changes\n", paths.RootDir)
 
+	// Run an initial build so something is built before the first file change.
+	if err := (&buildCmd{
+		installFlags: cmd.installFlags,
+		buildFlags:   cmd.buildFlags,
+	}).Run(ctx); err != nil {
+		fmt.Printf("Initial build failed: %v\n", err)
+	}
+
 	for file := range events {
 		if relfile, err := filepath.Rel(paths.RootDir, file); err == nil {
 			file = relfile

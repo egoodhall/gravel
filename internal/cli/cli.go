@@ -18,6 +18,7 @@ type Cli struct {
 	Build   buildCmd   `name:"build" cmd:"" help:"Run a test/build cycle."`
 	Version versionCmd `name:"version" cmd:"" help:"Print version information for the gravel binary and exit."`
 	Plan    planCmd    `name:"plan" cmd:"" help:"Print the build plan and exit."`
+	Targets targetsCmd `name:"targets" cmd:"" help:"List all buildable targets (main packages) in the project."`
 	Watch   watchCmd   `name:"watch" cmd:"" help:"Watch the repository, rebuilding parts as files get changed."`
 	Install installCmd `name:"install" cmd:"" help:"Install binaries into the $PATH."`
 }
@@ -29,7 +30,7 @@ type installFlags struct {
 
 type buildFlags struct {
 	// Build targets filter
-	Targets []string `name:"targets" arg:"" optional:"" help:"Targets to build. If none are specified, all eligible targets will be built."`
+	Targets []string `name:"targets" arg:"" optional:"" help:"Targets to build: binary name (e.g. authy), path (e.g. cmd/authy), or full package path. If none are specified, all main packages are built."`
 
 	// Build features
 	Test    bool   `name:"tests" negatable:"" default:"true" help:"Run tests for packages that are built and their dependencies."`
