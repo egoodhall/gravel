@@ -1,0 +1,45 @@
+load('ext://ko', 'ko_build')
+
+# Gravel Tilt Extension
+# Builds Docker images using Gravel-built binaries
+
+def gravel_docker_build(targets=[], root='.', goos='linux', goarch='arm64', base_image='scratch', **kwargs):
+    """
+    Builds a Docker image using a Gravel-built binary.
+    
+    Args:
+        ref: Docker image reference (e.g., 'myapp:latest')
+        base_image: Base Docker image (e.g., 'alpine:latest', 'scratch')
+        **kwargs: Additional arguments passed to docker_build
+    
+    Example:
+        gravel_docker_build(targets=['example'], root='..', base_image='alpine:latest')
+    """
+    root = os.path.abspath(root)
+
+    # Run gravel watch, so binaries keep getting built
+    cmd = "gravel watch --root={root} --cross={goos}/{goarch}".format(root=root, goos=goos, goarch=goarch)
+    if len(targets) > 0:
+        cmd += " " + " ".join(targets)
+    local_resource("gravel_watch", serve_cmd=cmd)
+
+    # Find binaries in root/bin/{goos}_{goarch}/*
+    bin_dir = os.path.join(root, 'bin', '{goos}_{goarch}'.format(goos=goos, goarch=goarch))
+    binaries = [ os.path.relpath(binary, root) for binary in listdir(bin_dir) ]
+
+    # Build Docker images for each binary
+    for binary in binaries:
+        # Build Docker image
+        dockerfile = """
+        FROM {base_image}
+        COPY {binary} /{bin_name}
+        ENTRYPOINT ["/{bin_name}"]
+        """.format(base_image=base_image, binary=rel_path, bin_name=os.path.basename(binary))
+        
+        docker_build(
+            bin_name,
+            context=root,
+            dockerfile_contents=dockerfile,
+            only=[rel_path],
+            **kwargs
+        )

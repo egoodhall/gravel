@@ -1,0 +1,5 @@
+load('../tilt/tiltfile', 'gravel_docker_build')
+
+gravel_docker_build(targets=['example'], root='..')
+
+k8s_yaml('k8s.yaml')

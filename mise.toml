@@ -1,10 +1,29 @@
 [tools]
 go = "latest"
+tilt = "latest"
+kind = "latest"
+"github:tilt-dev/ctlptl" = "latest"
+kubectl = "latest"
 
 [env]
 _.path = "bin"
+KUBECONFIG = "{{config_root}}/example/kubeconfig"
 
-[tasks.build]
+[tasks.install]
 run = """
-go build -o bin/gravel ./cmd/gravel/main.go
+go install ./cmd/gravel
 """
+
+[tasks.tilt]
+dir = "example"
+depends = ["install"]
+run = """
+ctlptl create registry gravel-dev
+ctlptl create cluster kind --registry gravel-dev
+tilt up
+tilt down
+ctlptl delete cluster kind
+ctlptl delete registry gravel-dev
+"""
+
+
