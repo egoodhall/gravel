@@ -20,15 +20,22 @@ type Target struct {
 	resolve.Pkg
 }
 
+// BuildOp represents a single build operation: building a target for a specific platform.
+type BuildOp struct {
+	Target     resolve.Pkg
+	Platform   Platform
+	OutputPath string // Full path to the output binary
+}
+
 type Plan struct {
 	Paths gravel.Paths  `json:"paths"`
 	Test  []resolve.Pkg `json:"test"`
-	Build []Target      `json:"build"`
+	Build []BuildOp     `json:"build"`
 }
 
 // PlatformsFromOptions returns the list of platforms we are building for:
 // if crossTargets is non-empty, one platform per "GOOS/GOARCH" entry; otherwise a single platform from goos/goarch (defaulting to current OS/arch).
-func PlatformsFromOptions(crossTargets []string, goos, goarch string) ([]Platform, error) {
+func PlatformsFromOptions(crossTargets []string) ([]Platform, error) {
 	if len(crossTargets) > 0 {
 		out := make([]Platform, 0, len(crossTargets))
 		for _, t := range crossTargets {
@@ -40,17 +47,10 @@ func PlatformsFromOptions(crossTargets []string, goos, goarch string) ([]Platfor
 		}
 		return out, nil
 	}
-	g, a := goos, goarch
-	if g == "" {
-		g = runtime.GOOS
-	}
-	if a == "" {
-		a = runtime.GOARCH
-	}
-	return []Platform{{GOOS: g, GOARCH: a}}, nil
+	return []Platform{{GOOS: runtime.GOOS, GOARCH: runtime.GOARCH}}, nil
 }
 
-func NewPlan(paths gravel.Paths, graph types.Graph[resolve.Pkg], targets []string, platforms []Platform, alwaysSuffix bool) (Plan, error) {
+func NewPlan(paths gravel.Paths, graph types.Graph[resolve.Pkg], targets []string, platforms []Platform) (Plan, error) {
 	targetPaths := findDirs(targets)
 
 	// Build set: all main packages if no targets specified, otherwise only those matching targets.
@@ -68,16 +68,14 @@ func NewPlan(paths gravel.Paths, graph types.Graph[resolve.Pkg], targets []strin
 		}
 	}
 
-	// Include any main package whose output binary is missing for any platform we're building for.
-	for pkg := range graph.Nodes() {
-		if pkg.PkgName != "main" {
-			continue
-		}
+	// Include any matching main package whose output binary is missing for any platform we're building for.
+	// Only check missing binaries for packages that match the target filter (or all packages if no filter).
+	for pkg := range buildPkgs {
 		for _, plat := range platforms {
-			name := BinaryOutputName(pkg.Binary, plat.GOOS, plat.GOARCH, alwaysSuffix)
-			if _, err := os.Stat(filepath.Join(paths.BinDir, name)); err != nil {
+			outputPath := BinaryOutputPath(paths.BinDir, pkg.Binary, plat.GOOS, plat.GOARCH)
+			if _, err := os.Stat(outputPath); err != nil {
 				if os.IsNotExist(err) {
-					buildPkgs.Add(pkg)
+					// Binary is missing - keep this package in buildPkgs (already added)
 					break
 				}
 			}
@@ -91,15 +89,23 @@ func NewPlan(paths gravel.Paths, graph types.Graph[resolve.Pkg], targets []strin
 		testPkgs.AddSet(graph.Descendants(pkg))
 	}
 
-	buildTgts := types.NewSet[Target]()
+	// Build operations: each target × each platform.
+	buildOps := []BuildOp{}
 	for pkg := range buildPkgs {
-		buildTgts.Add(Target{Pkg: pkg})
+		for _, plat := range platforms {
+			outputPath := BinaryOutputPath(paths.BinDir, pkg.Binary, plat.GOOS, plat.GOARCH)
+			buildOps = append(buildOps, BuildOp{
+				Target:     pkg,
+				Platform:   plat,
+				OutputPath: outputPath,
+			})
+		}
 	}
 
 	return Plan{
 		Paths: paths,
 		Test:  testPkgs.Slice(),
-		Build: buildTgts.Slice(),
+		Build: buildOps,
 	}, nil
 }
 

@@ -2,34 +2,41 @@ package build
 
 import (
 	"context"
-	"io/fs"
 	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/egoodhall/gravel/internal/gravel"
+	"github.com/egoodhall/gravel/internal/resolve"
 	"github.com/fsnotify/fsnotify"
 )
 
 const watchDebounce = 150 * time.Millisecond
 
-func Watch(ctx context.Context, paths gravel.Paths) (chan string, error) {
+// Watch watches only directories for packages in the given set (typically packages in the dependency graph for build targets).
+func Watch(ctx context.Context, paths gravel.Paths, watchPkgs []resolve.Pkg) (chan string, error) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return nil, err
 	}
 
-	if err := filepath.WalkDir(paths.RootDir, func(path string, d fs.DirEntry, err error) error {
-		if strings.HasPrefix(path, paths.SkipDir) || strings.HasPrefix(path, filepath.Join(paths.RootDir, ".git")) {
-			return nil
+	// Track which directories we've added to avoid duplicates
+	watchedDirs := make(map[string]bool)
+	skipDir := paths.SkipDir
+	gitDir := filepath.Join(paths.RootDir, ".git")
+
+	// Watch directories for all relevant packages (excluding bin and .git)
+	for _, pkg := range watchPkgs {
+		dir := filepath.Clean(pkg.DirPath)
+		if !watchedDirs[dir] && strings.HasPrefix(dir, paths.RootDir) {
+			// Skip bin directory and .git
+			if strings.HasPrefix(dir, skipDir) || strings.HasPrefix(dir, gitDir) {
+				continue
+			}
+			if err := watcher.Add(dir); err == nil {
+				watchedDirs[dir] = true
+			}
 		}
-		if d.IsDir() {
-			return watcher.Add(filepath.Clean(path))
-		}
-		return nil
-	}); err != nil {
-		watcher.Close()
-		return nil, err
 	}
 
 	events := make(chan string)
@@ -37,6 +44,9 @@ func Watch(ctx context.Context, paths gravel.Paths) (chan string, error) {
 	go func() {
 		defer watcher.Close()
 		defer close(events)
+
+		skipDir := paths.SkipDir
+		gitDir := filepath.Join(paths.RootDir, ".git")
 
 		var (
 			pending string
@@ -62,6 +72,11 @@ func Watch(ctx context.Context, paths gravel.Paths) (chan string, error) {
 
 			select {
 			case event := <-watcher.Events:
+				// Filter out events in bin directory or .git
+				eventPath := filepath.Clean(event.Name)
+				if strings.HasPrefix(eventPath, skipDir) || strings.HasPrefix(eventPath, gitDir) {
+					continue
+				}
 				if event.Has(fsnotify.Create) || event.Has(fsnotify.Remove) || event.Has(fsnotify.Write) || event.Has(fsnotify.Rename) {
 					pending = event.Name
 					if timer == nil {

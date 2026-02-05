@@ -17,8 +17,7 @@ changed since the last run.
 type Cli struct {
 	Build   buildCmd   `name:"build" cmd:"" help:"Run a test/build cycle."`
 	Version versionCmd `name:"version" cmd:"" help:"Print version information for the gravel binary and exit."`
-	Plan    planCmd    `name:"plan" cmd:"" help:"Print the build plan and exit."`
-	Targets targetsCmd `name:"targets" cmd:"" help:"List all buildable targets (main packages) in the project."`
+	Targets targetsCmd `name:"targets" cmd:"" help:"List buildable targets (main packages). Use --json to output the build plan (test/build package lists)."`
 	Watch   watchCmd   `name:"watch" cmd:"" help:"Watch the repository, rebuilding parts as files get changed."`
 	Install installCmd `name:"install" cmd:"" help:"Install binaries into the $PATH."`
 }
@@ -38,14 +37,8 @@ type buildFlags struct {
 	Version string `name:"version" short:"v" default:"" help:"Version string to embed in built binaries (e.g. for buildinfo)."`
 
 	// Cross-compilation
-	GOOS           string   `name:"goos" default:"" help:"Target OS for a single cross-compile (e.g. linux, darwin, windows)."`
-	GOARCH         string   `name:"goarch" default:"" help:"Target architecture for a single cross-compile (e.g. amd64, arm64)."`
-	Cross          []string `name:"cross" help:"Cross-compile for multiple platforms as GOOS/GOARCH (e.g. linux/amd64,darwin/arm64 or repeat --cross=linux/amd64)."`
-	TargetSuffix   bool     `name:"target-suffix" default:"false" help:"Always include GOOS_GOARCH in binary name (e.g. mybin_linux_amd64), even when building for the current platform."`
+	Cross []string `name:"cross" help:"Cross-compile for multiple platforms as GOOS/GOARCH (e.g. linux/amd64,darwin/arm64 or repeat --cross=linux/amd64)."`
 
-	// Internal flags used by other commands
-	// to configure behavior when invoking
-	// the build command.
-	planOnly    bool
+	// Internal flags used by other commands when invoking the build.
 	buildAction build.Action
 }

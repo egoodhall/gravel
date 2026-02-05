@@ -15,21 +15,6 @@ func Exec(ctx context.Context, cfg Config) error {
 		return err
 	}
 
-	if len(cfg.Options.CrossTargets) > 0 {
-		for _, t := range cfg.Options.CrossTargets {
-			goos, goarch, err := parseCrossTarget(t)
-			if err != nil {
-				return err
-			}
-			cfg.Options.GOOS = goos
-			cfg.Options.GOARCH = goarch
-			if err := execBinaryBuilds(ctx, cfg); err != nil {
-				return err
-			}
-		}
-		return nil
-	}
-
 	return execBinaryBuilds(ctx, cfg)
 }
 
@@ -43,47 +28,34 @@ func parseCrossTarget(s string) (goos, goarch string, err error) {
 	if goos == "" || goarch == "" {
 		return "", "", fmt.Errorf("invalid cross target %q: GOOS and GOARCH must be non-empty", s)
 	}
+	if goos == "-" {
+		goos = runtime.GOOS
+	}
+	if goarch == "-" {
+		goarch = runtime.GOARCH
+	}
 	return goos, goarch, nil
 }
 
-// BinaryOutputName returns the output basename for a binary built for the given platform.
-// When alwaysSuffix is true, or when the platform is not the current OS/arch, it returns binary_GOOS_GOARCH.
-func BinaryOutputName(binary, goos, goarch string, alwaysSuffix bool) string {
-	if !alwaysSuffix && goos == runtime.GOOS && goarch == runtime.GOARCH {
-		return binary
-	}
-	return binary + "_" + goos + "_" + goarch
+// BinaryOutputPath returns the full output path for a binary built for the given platform.
+// Output is always bin/GOOS_GOARCH/binary (e.g. bin/linux_amd64/myapp, bin/darwin_arm64/myapp).
+func BinaryOutputPath(binDir, binary, goos, goarch string) string {
+	return filepath.Join(binDir, goos+"_"+goarch, binary)
 }
 
-func generateBuildArgs(cfg Config, tgt Target) []string {
+func generateBuildArgs(cfg Config, op BuildOp) []string {
 	commit, _ := resolve.GitCommit()
-
 	version := cfg.Options.Version
-
-	effectiveGOOS := cfg.Options.GOOS
-	if effectiveGOOS == "" {
-		effectiveGOOS = runtime.GOOS
-	}
-	effectiveGOARCH := cfg.Options.GOARCH
-	if effectiveGOARCH == "" {
-		effectiveGOARCH = runtime.GOARCH
-	}
-
-	alwaysSuffix := cfg.Options.TargetSuffix || len(cfg.Options.CrossTargets) > 0
-	binName := BinaryOutputName(tgt.Binary, effectiveGOOS, effectiveGOARCH, alwaysSuffix)
 
 	args := []string{cfg.Action.String()}
 	if cfg.Action != Install {
-		outPath := filepath.Join(cfg.Paths.BinDir, binName)
-		if p, err := filepath.Rel(tgt.Module.DirPath, outPath); err == nil {
-			outPath = "./" + p
-		}
-		args = append(args, "-o", outPath)
+		// Use the absolute output path from the plan to avoid working directory issues
+		args = append(args, "-o", op.OutputPath)
 	}
 
 	args = append(args,
 		"-ldflags", buildLdFlags(version, commit),
-		tgt.PkgPath,
+		op.Target.PkgPath,
 	)
 	return args
 }

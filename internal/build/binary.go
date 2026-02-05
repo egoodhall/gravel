@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"golang.org/x/sync/errgroup"
@@ -19,20 +20,23 @@ func execBinaryBuilds(parent context.Context, cfg Config) error {
 		return err
 	}
 
-	env := buildEnv(cfg.Options.GOOS, cfg.Options.GOARCH)
-
 	eg, ctx := errgroup.WithContext(parent)
-	for _, tgt := range cfg.Plan.Build {
-		args := generateBuildArgs(cfg, tgt)
+	for _, op := range cfg.Plan.Build {
+		if err := os.MkdirAll(filepath.Dir(op.OutputPath), 0755); err != nil {
+			return err
+		}
+		args := generateBuildArgs(cfg, op)
+		env := buildEnv(op.Platform.GOOS, op.Platform.GOARCH)
 
 		c := exec.CommandContext(ctx, "go", args...)
+		c.Dir = cfg.Paths.RootDir // Run from the root directory to ensure consistent paths
 		c.Stderr = os.Stderr
 		c.Stdout = os.Stdout
 		if env != nil {
 			c.Env = env
 		}
 
-		fmt.Println(tgt.PkgPath)
+		fmt.Println(op.Target.PkgPath)
 		eg.Go(c.Run)
 	}
 	return eg.Wait()
